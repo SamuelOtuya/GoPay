@@ -123,10 +123,10 @@ const WhyUs = () => {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-0 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="max-w-2xl mb-14">
+        <div className="max-w-2xl mb-14 px-">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-medium mb-4">
             Why Gopay
           </div>
