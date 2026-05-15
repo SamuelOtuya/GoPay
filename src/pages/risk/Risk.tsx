@@ -86,6 +86,18 @@ const riskTypes = [
     color: "hover:border-amber-300 hover:shadow-amber-50",
     iconBg: "bg-amber-100",
   },
+  {
+    id: "By Industry",
+    icon: "🏭",
+    name: "Industry-Specific Risks",
+    description:
+      "Unique risks associated with different industries and sectors.",
+    impact: "Medium",
+    impactColor: "text-amber-600 bg-amber-50 border-amber-200",
+    products: ["Business Interruption", "Trade Credit", "Revenue Protection"],
+    color: "hover:border-amber-300 hover:shadow-amber-50",
+    iconBg: "bg-amber-100",
+  },
 ];
 
 const Risk = () => {

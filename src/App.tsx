@@ -15,6 +15,11 @@ import Product from "./pages/Product";
 import Quote from "./pages/Quote";
 import Risk from "./pages/risk/Risk";
 import RiskDetail from "./pages/risk/RiskDetail";
+import Blog from "./pages/Blog";
+import Claim from "./pages/Claim";
+import OurCovers from "./pages/OurCovers";
+import TravelInsurance from "./pages/Personal/TravelInsurance";
+import HomeInsurance from "./pages/Personal/HomeInsurance";
 
 function App() {
   return (
@@ -30,9 +35,14 @@ function AppRoutes() {
       {/* <Route element={<DefaultLayout />}> */}
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/claim" element={<Claim />} />
+      <Route path="/blog" element={<Blog />} />
       <Route path="/personal" element={<Personal />} />
       <Route path="/personal/:type" element={<PersonalType />} />
       <Route path="/personal/medical" element={<Medical />} />
+      <Route path="/ourcovers" element={<OurCovers />} />
+      <Route path="/personal/travel" element={<TravelInsurance />} />
+      <Route path="/personal/home" element={<HomeInsurance />} />
 
       <Route path="/business" element={<Business />} />
       <Route path="/business/:category" element={<BusinessCategory />} />

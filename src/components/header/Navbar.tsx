@@ -48,10 +48,78 @@ const allCovers = [
   },
 ];
 
+const clientServices = [
+  {
+    label: "Report a Claim",
+    href: "/claim",
+    icon: (
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.8}
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+    ),
+    description: "File and track your insurance claims",
+  },
+  {
+    label: "Book Consultation",
+    href: "/appointment",
+    icon: (
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.8}
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+    ),
+    description: "Speak with an insurance advisor",
+  },
+  {
+    label: "Car Valuers",
+    href: "/services/car-valuers",
+    icon: (
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.8}
+          d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.8}
+          d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l1 1h2m10-11h2l3 5v4h-2m-4-5h4"
+        />
+      </svg>
+    ),
+    description: "Get your vehicle professionally valued",
+  },
+];
+
 const navLinks = [
-  { label: "Personal", path: "/personal" },
-  { label: "Business", path: "/business" },
-  { label: "By Industry", path: "/industry" },
+  { label: "Our Covers", path: "/ourcovers" },
+  { label: "Client Services", path: "/services", hasDropdown: true },
   { label: "Risk Guide", path: "/risk" },
   { label: "About", path: "/about" },
   { label: "Blog", path: "/blog" },
@@ -62,7 +130,12 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [coversOpen, setCoversOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const coversRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  // Timeout ref to delay closing so the dropdown doesn't flicker when
+  // the cursor briefly crosses the gap between the trigger and the panel.
+  const servicesCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -74,6 +147,7 @@ const Navbar = () => {
   useEffect(() => {
     setMobileOpen(false);
     setCoversOpen(false);
+    setServicesOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -81,10 +155,34 @@ const Navbar = () => {
       if (coversRef.current && !coversRef.current.contains(e.target as Node)) {
         setCoversOpen(false);
       }
+      if (
+        servicesRef.current &&
+        !servicesRef.current.contains(e.target as Node)
+      ) {
+        setServicesOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (servicesCloseTimer.current) clearTimeout(servicesCloseTimer.current);
+    };
+  }, []);
+
+  const handleServicesMouseEnter = () => {
+    if (servicesCloseTimer.current) clearTimeout(servicesCloseTimer.current);
+    setServicesOpen(true);
+  };
+
+  const handleServicesMouseLeave = () => {
+    servicesCloseTimer.current = setTimeout(() => {
+      setServicesOpen(false);
+    }, 120);
+  };
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -109,86 +207,89 @@ const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
-            {/* Our Covers dropdown */}
-            <div ref={coversRef} className="relative">
-              <button
-                onClick={() => setCoversOpen((p) => !p)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  coversOpen
-                    ? "bg-[#1B3A6B] text-white"
-                    : isScrolled
-                      ? "text-slate-600 hover:text-[#1B3A6B] hover:bg-blue-50"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                Our Covers
-                <svg
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${coversOpen ? "rotate-180" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-
-              {/* Dropdown panel */}
-              {coversOpen && (
+            {navLinks.map((link) =>
+              link.hasDropdown ? (
+                /* Client Services — hover-triggered dropdown */
                 <div
-                  className="absolute top-full left-0 mt-2 w-[560px] bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-5 grid grid-cols-2 gap-x-6 gap-y-4"
-                  style={{ animation: "dropIn 0.15s ease both" }}
+                  key={link.path}
+                  className="relative"
+                  ref={servicesRef}
+                  onMouseEnter={handleServicesMouseEnter}
+                  onMouseLeave={handleServicesMouseLeave}
                 >
-                  <style>{`
-                    @keyframes dropIn {
-                      from { opacity: 0; transform: translateY(-6px); }
-                      to   { opacity: 1; transform: translateY(0); }
-                    }
-                  `}</style>
+                  <button
+                    className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(link.path) || servicesOpen
+                        ? "bg-[#1B3A6B] text-white"
+                        : isScrolled
+                          ? "text-slate-600 hover:text-[#1B3A6B] hover:bg-blue-50"
+                          : "text-white/80 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {link.label}
+                    <svg
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
 
-                  {allCovers.map((group) => (
-                    <div key={group.section}>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">
-                        {group.section}
-                      </p>
-                      <ul className="space-y-0.5">
-                        {group.items.map((item) => (
-                          <li key={item.href}>
-                            <Link
-                              to={item.href}
-                              className="block px-3 py-1.5 rounded-lg text-sm text-slate-700 hover:text-[#1B3A6B] hover:bg-blue-50 transition-colors font-medium"
-                            >
-                              {item.label}
-                            </Link>
-                          </li>
+                  {/* Dropdown Panel */}
+                  {servicesOpen && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                      {/* Decorative top bar */}
+                      <div className="h-1 w-full bg-gradient-to-r from-[#1B3A6B] to-[#F59E0B]" />
+                      <div className="p-2">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 pt-2 pb-1.5">
+                          Client Services
+                        </p>
+                        {clientServices.map((item) => (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group"
+                          >
+                            <span className="mt-0.5 text-[#1B3A6B] group-hover:text-[#F59E0B] transition-colors flex-shrink-0">
+                              {item.icon}
+                            </span>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800 group-hover:text-[#1B3A6B] transition-colors leading-tight">
+                                {item.label}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-0.5 leading-tight">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
                         ))}
-                      </ul>
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Regular nav links */}
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive(link.path)
-                    ? "bg-[#1B3A6B] text-white"
-                    : isScrolled
-                      ? "text-slate-600 hover:text-[#1B3A6B] hover:bg-blue-50"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+              ) : (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(link.path)
+                      ? "bg-[#1B3A6B] text-white"
+                      : isScrolled
+                        ? "text-slate-600 hover:text-[#1B3A6B] hover:bg-blue-50"
+                        : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </div>
 
           {/* CTA Buttons */}
@@ -278,23 +379,42 @@ const Navbar = () => {
               </div>
             ))}
 
+            {/* Client Services section */}
+            <div className="border-t border-slate-100 pt-3">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pb-1">
+                Client Services
+              </p>
+              {clientServices.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1B3A6B] transition-colors"
+                >
+                  <span className="text-[#1B3A6B]">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
             <div className="border-t border-slate-100 pt-3 space-y-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pb-1">
                 More
               </p>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.path)
-                      ? "bg-[#1B3A6B] text-white"
-                      : "text-slate-700 hover:bg-blue-50 hover:text-[#1B3A6B]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks
+                .filter((l) => !l.hasDropdown)
+                .map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(link.path)
+                        ? "bg-[#1B3A6B] text-white"
+                        : "text-slate-700 hover:bg-blue-50 hover:text-[#1B3A6B]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
