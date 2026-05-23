@@ -10,8 +10,8 @@ export interface HeroProps {
   tagline: string;
   body1: string;
   body2: string;
-  heroImage: string; // path e.g. "/images/home-hero.jpg"
-  accentColor?: string; // tailwind bg class for pill badge
+  heroImage: string;
+  accentColor?: string;
   badge?: string;
   ctaPrimary?: { label: string; href: string };
   ctaSecondary?: { label: string; href: string };
@@ -19,6 +19,7 @@ export interface HeroProps {
 
 export interface WhyCard {
   img: string;
+  title?: string;
   text: string;
 }
 
@@ -93,7 +94,7 @@ export interface CoverageProps {
 export interface ClaimStep {
   num: number;
   title: string;
-  color: string; // tailwind bg class
+  color: string;
   text: string;
   gopayRole?: string;
 }
@@ -127,6 +128,20 @@ export interface CTAProps {
   body: string;
   primaryLabel: string;
   secondaryLabel: string;
+}
+
+export interface SegmentRow {
+  segment: string;
+  who: string;
+  why: string;
+  risk: string;
+}
+
+export interface WhoNeedsItProps {
+  sectionLabel: string;
+  heading: string;
+  intro: string;
+  rows: SegmentRow[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -202,6 +217,8 @@ export const PageHero = ({
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WHY IT MATTERS
+// Cards now match WhatIsIt style: white card with border, image + title + text
+// Pull quote is full-bleed (bg covers full width via -mx + px pattern)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WhyItMatters = ({
@@ -211,8 +228,8 @@ export const WhyItMatters = ({
   cards,
   pullQuote,
 }: WhyProps) => (
-  <section className="py-20 px-6 sm:px-10 lg:px-16 bg-white">
-    <div className="max-w-7xl mx-auto">
+  <section className="py-20 bg-slate-100">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
       <div className="mb-12">
         <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
           {sectionLabel}
@@ -222,13 +239,18 @@ export const WhyItMatters = ({
         </h2>
         <p className="text-slate-500 text-base">{subheading}</p>
       </div>
+
+      {/* Cards matching WhatIsIt style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {cards.map((card, i) => (
-          <div key={i} className="flex flex-col">
-            <div className="h-52 rounded-2xl overflow-hidden bg-slate-200 mb-4 flex-shrink-0">
+          <div
+            key={i}
+            className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+          >
+            <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
               <img
                 src={card.img}
-                alt={`Scenario ${i + 1}`}
+                alt={card.title || `Scenario ${i + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   const p = (e.target as HTMLImageElement).parentElement!;
@@ -237,13 +259,24 @@ export const WhyItMatters = ({
                 }}
               />
             </div>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              {card.text}
-            </p>
+            <div className="p-5 flex flex-col flex-1">
+              {card.title && (
+                <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                  {card.title}
+                </p>
+              )}
+              <p className="text-slate-600 text-sm leading-relaxed">
+                {card.text}
+              </p>
+            </div>
           </div>
         ))}
       </div>
-      <div className="bg-[#0F2240] rounded-2xl p-8 sm:p-10">
+    </div>
+
+    {/* Full-bleed pull quote — bg stretches edge-to-edge */}
+    <div className="bg-[#0F2240] w-full px-6 sm:px-10 lg:px-16 py-10">
+      <div className="max-w-7xl mx-auto">
         <p className="text-white/60 text-sm mb-3 italic">{pullQuote.eyebrow}</p>
         <p className="text-white text-lg sm:text-xl font-medium leading-relaxed mb-4">
           {pullQuote.headline}
@@ -273,8 +306,8 @@ export const WhatIsIt = ({
   closing1,
   closing2,
 }: WhatProps) => (
-  <section className="py-20 px-6 sm:px-10 lg:px-16 bg-slate-50">
-    <div className="max-w-7xl mx-auto">
+  <section className="py-20 bg-slate-50">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
       <div className="mb-4">
         <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
           {sectionLabel}
@@ -331,74 +364,81 @@ export const WhatIsIt = ({
           </div>
         ))}
       </div>
-      <div className="bg-white border border-slate-200 rounded-2xl p-8">
-        <p className="text-slate-700 text-base leading-relaxed mb-3">
-          {closing1}
-        </p>
-        <p className="text-slate-600 text-base leading-relaxed">{closing2}</p>
+    </div>
+
+    {/* Full-bleed closing block */}
+    <div className="w-full bg-[#0F2240]  border-t border-b border-slate-200 py-8">
+      <div className="max-w-7xl mx-auto px-6">
+        <p className="text-white text-base leading-relaxed mb-3">{closing1}</p>
+        <p className="text-slate-400 text-base leading-relaxed">{closing2}</p>
       </div>
     </div>
   </section>
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RISK MAP
+// RISK MAP — Expandable cards
+// Collapsed: shows image + stage + scenario preview
+// Expanded: shows full impact list + insurance response
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const RiskMap = ({
-  sectionLabel,
-  heading,
-  subheading,
-  intro1,
-  intro2,
-  rows,
-  closing1,
-  closing2,
-}: RiskMapProps) => (
-  <section className="py-20 px-6 sm:px-10 lg:px-16 bg-white">
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-4">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base mb-2">{subheading}</p>
+const RiskCard = ({ row, index }: { row: RiskRow; index: number }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
+      {/* Image */}
+      <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+        <img
+          src={row.img}
+          alt={row.stage}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            const p = (e.target as HTMLImageElement).parentElement!;
+            p.style.background = "#cbd5e1";
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
       </div>
-      <p className="text-slate-600 text-base mb-2 max-w-3xl">{intro1}</p>
-      <p className="text-slate-600 text-base mb-10 max-w-3xl">{intro2}</p>
-      <div className="space-y-0 border border-slate-200 rounded-2xl overflow-hidden">
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className={`grid grid-cols-1 lg:grid-cols-[180px_1fr_200px_1fr] border-b border-slate-200 last:border-b-0 ${i % 2 === 0 ? "bg-white" : "bg-slate-50/60"}`}
+
+      {/* Always-visible summary */}
+      <div className="p-5 flex flex-col flex-1">
+        <p className="text-xs font-black text-[#0F2240] uppercase tracking-wide mb-2">
+          {row.stage}
+        </p>
+        <p className="text-slate-500 text-sm leading-relaxed line-clamp-3">
+          {row.scenario}
+        </p>
+
+        {/* Expand toggle */}
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1B3A6B] uppercase tracking-wider hover:text-[#0F2240] transition-colors self-start"
+        >
+          {expanded ? "Show less" : "See impact & cover"}
+          <svg
+            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <div className="h-36 lg:h-auto bg-slate-200 overflow-hidden flex-shrink-0">
-              <img
-                src={row.img}
-                alt={row.stage}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const p = (e.target as HTMLImageElement).parentElement!;
-                  p.style.background = "#cbd5e1";
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <div className="p-5 border-r border-slate-200">
-              <p className="text-xs font-black text-[#0F2240] uppercase tracking-wide mb-2 leading-snug">
-                {row.stage}
-              </p>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                {row.scenario}
-              </p>
-            </div>
-            <div className="p-5 border-r border-slate-200 bg-red-50/40">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {/* Expanded detail */}
+        {expanded && (
+          <div className="mt-4 space-y-4 border-t border-slate-100 pt-4">
+            <div className="bg-red-50/60 rounded-xl p-4">
               <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-2">
                 Impact:
               </p>
-              <ul className="space-y-1">
+              <ul className="space-y-1.5">
                 {row.impact.map((item, j) => (
                   <li
                     key={j}
@@ -410,7 +450,7 @@ export const RiskMap = ({
                 ))}
               </ul>
             </div>
-            <div className="p-5 bg-blue-50/40">
+            <div className="bg-blue-50/50 rounded-xl p-4">
               <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
                 How insurance responds:
               </p>
@@ -419,21 +459,265 @@ export const RiskMap = ({
               </p>
             </div>
           </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const RiskMap = ({
+  sectionLabel,
+  heading,
+  subheading,
+  intro1,
+  intro2,
+  rows,
+  closing1,
+  closing2,
+}: RiskMapProps) => (
+  <section className="py-20 bg-white">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="mb-4">
+        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+          {sectionLabel}
+        </p>
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+          {heading}
+        </h2>
+        <p className="text-slate-500 text-base mb-2">{subheading}</p>
+      </div>
+      <p className="text-slate-600 text-base mb-2 max-w-3xl">{intro1}</p>
+      <p className="text-slate-600 text-base mb-10 max-w-3xl">{intro2}</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {rows.map((row, i) => (
+          <RiskCard key={i} row={row} index={i} />
         ))}
       </div>
-      <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-7">
-        <p className="text-slate-700 text-base leading-relaxed mb-2">
-          {closing1}
+    </div>
+    <div className="bg-[#0F2240] border border-slate-200  p-7 w-full">
+      <p className="text-white text-base leading-relaxed mb-2 text-center">
+        {closing1}
+      </p>
+      <p className="text-slate-400 text-base leading-relaxed text-center">
+        {closing2}
+      </p>
+    </div>
+  </section>
+);
+
+// WHO NEEDS IT SECTION
+
+export const WhoNeedsIt = ({
+  sectionLabel,
+  heading,
+  intro,
+  rows,
+}: WhoNeedsItProps) => (
+  <section className="py-20 bg-white">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="mb-6">
+        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+          {sectionLabel}
         </p>
-        <p className="text-slate-600 text-base leading-relaxed">{closing2}</p>
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-3">
+          {heading}
+        </h2>
+        <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
+          {intro}
+        </p>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-slate-200">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-[#0F2240]">
+              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
+                Customer Segment
+              </th>
+              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
+                Who They Are
+              </th>
+              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
+                Why They Need It
+              </th>
+              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
+                Key Risk Exposure
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                <td className="px-5 py-4 font-semibold text-[#0F2240] align-top">
+                  {row.segment}
+                </td>
+                <td className="px-5 py-4 text-slate-600 align-top">
+                  {row.who}
+                </td>
+                <td className="px-5 py-4 text-slate-600 align-top">
+                  {row.why}
+                </td>
+                <td className="px-5 py-4 text-slate-600 align-top">
+                  {row.risk}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COVERAGE TABLE
+// COVERAGE TABLE — Expandable cards
+// Collapsed: shows title + first 2 covered items preview
+// Expanded: shows full covered + exclusions lists
 // ─────────────────────────────────────────────────────────────────────────────
+
+const CoverageCard = ({ group }: { group: CoverageGroup }) => {
+  const [expanded, setExpanded] = useState(false);
+  const PREVIEW_COUNT = 2;
+
+  return (
+    <div
+      className={`bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col ${group.fullWidth ? "lg:col-span-2" : ""}`}
+    >
+      {/* Header */}
+      <div className="bg-[#0F2240] px-5 py-3 flex items-center justify-between">
+        <h3 className="text-white font-bold text-sm tracking-wide">
+          {group.title}
+        </h3>
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-1.5 text-white/60 hover:text-white text-xs font-semibold transition-colors ml-4 flex-shrink-0"
+        >
+          {expanded ? "Collapse" : "View all"}
+          <svg
+            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Collapsed preview — just covered items */}
+      {!expanded && (
+        <div className="p-5">
+          <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <svg
+              className="w-3.5 h-3.5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Covered
+          </p>
+          <ul className="space-y-2">
+            {group.covered.slice(0, PREVIEW_COUNT).map((item, j) => (
+              <li
+                key={j}
+                className="flex items-start gap-2 text-sm text-slate-600"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          {(group.covered.length > PREVIEW_COUNT ||
+            group.excluded.length > 0) && (
+            <button
+              onClick={() => setExpanded(true)}
+              className="mt-3 text-xs font-bold text-[#1B3A6B] hover:text-[#0F2240] transition-colors flex items-center gap-1"
+            >
+              +
+              {group.covered.length - PREVIEW_COUNT > 0
+                ? ` ${group.covered.length - PREVIEW_COUNT} more covered`
+                : ""}
+              {group.excluded.length > 0
+                ? ` · ${group.excluded.length} exclusions`
+                : ""}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Expanded — full covered + exclusions side by side */}
+      {expanded && (
+        <div className="grid grid-cols-2 divide-x divide-slate-100">
+          <div className="p-5">
+            <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <svg
+                className="w-3.5 h-3.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Covered
+            </p>
+            <ul className="space-y-2">
+              {group.covered.map((item, j) => (
+                <li
+                  key={j}
+                  className="flex items-start gap-2 text-sm text-slate-600"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="p-5 bg-red-50/30">
+            <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <svg
+                className="w-3.5 h-3.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Not Covered (Exclusions)
+            </p>
+            <ul className="space-y-2">
+              {group.excluded.map((item, j) => (
+                <li
+                  key={j}
+                  className="flex items-start gap-2 text-sm text-slate-500"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const CoverageTable = ({
   sectionLabel,
@@ -445,8 +729,8 @@ export const CoverageTable = ({
   note1,
   note2,
 }: CoverageProps) => (
-  <section className="py-20 px-6 sm:px-10 lg:px-16 bg-slate-50">
-    <div className="max-w-7xl mx-auto">
+  <section className="py-20 bg-slate-50">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
       <div className="mb-4">
         <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
           {sectionLabel}
@@ -462,76 +746,13 @@ export const CoverageTable = ({
       <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
         {intro2}
       </p>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {groups.map((group, i) => (
-          <div
-            key={i}
-            className={`bg-white rounded-2xl border border-slate-200 overflow-hidden ${group.fullWidth ? "lg:col-span-2" : ""}`}
-          >
-            <div className="bg-[#0F2240] px-5 py-3">
-              <h3 className="text-white font-bold text-sm tracking-wide">
-                {group.title}
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 divide-x divide-slate-100">
-              <div className="p-5">
-                <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Covered
-                </p>
-                <ul className="space-y-2">
-                  {group.covered.map((item, j) => (
-                    <li
-                      key={j}
-                      className="flex items-start gap-2 text-sm text-slate-600"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="p-5 bg-red-50/30">
-                <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Not Covered (Exclusions)
-                </p>
-                <ul className="space-y-2">
-                  {group.excluded.map((item, j) => (
-                    <li
-                      key={j}
-                      className="flex items-start gap-2 text-sm text-slate-500"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <CoverageCard key={i} group={group} />
         ))}
       </div>
+
       <div className="mt-8 grid lg:grid-cols-2 gap-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-6">
           <p className="text-slate-700 text-sm leading-relaxed">{note1}</p>
@@ -559,8 +780,8 @@ export const HowClaims = ({
   gopayBullets,
   closing,
 }: ClaimsProps) => (
-  <section className="py-20 px-6 sm:px-10 lg:px-16 bg-white">
-    <div className="max-w-7xl mx-auto">
+  <section className="py-20 bg-white">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
       <div className="mb-4">
         <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
           {sectionLabel}
@@ -643,7 +864,7 @@ export const HowClaims = ({
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RISK ASSESSMENT FORM (shared across all product pages)
+// RISK ASSESSMENT FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const RiskAssessmentForm = ({
@@ -855,7 +1076,6 @@ export const RiskAssessmentForm = ({
             <p className="text-slate-600 text-sm mb-6">
               Let us help you structure the right cover for you.
             </p>
-            {/* Step indicators */}
             <div className="flex gap-2 mb-6">
               {[1, 2, 3].map((s) => (
                 <div

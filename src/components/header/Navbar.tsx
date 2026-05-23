@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import gopayLogo from "../../assets/logo2.jpg";
+import gopayLogo from "../../assets/logo.png";
 
 const allCovers = [
   {

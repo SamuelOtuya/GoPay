@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import PageHero from "../components/shared/PageHero";
 import ScrollToTop from "../components/shared/ScrollToTop";
+import { supabase } from "../lib/supabase";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -79,12 +80,36 @@ const Appointment = () => {
     email: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const updateForm = (key: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!form.name || !form.phone) return;
+
+    setSubmitting(true);
+
+    const { error } = await supabase.from("appointments").insert({
+      full_name: form.name,
+      phone: form.phone,
+      email: form.email,
+      insurance_product: form.purpose,
+      preferred_date: form.date,
+      preferred_time: form.timeSlot,
+      message: `Meeting type: ${form.meetingType}`,
+      status: "new",
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error(error);
+      alert("Failed to book appointment. Please try again.");
+      return;
+    }
+
     setSubmitted(true);
   };
 
@@ -432,10 +457,11 @@ const Appointment = () => {
             {/* Back button */}
             {step > 1 && (
               <button
-                onClick={() => setStep((prev) => (prev - 1) as Step)}
-                className="mt-4 flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+                onClick={handleSubmit}
+                disabled={!form.name || !form.phone || submitting}
+                className="w-full bg-[#1B4FD8] disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold py-4 rounded-xl hover:bg-[#1740B8] transition-colors"
               >
-                ← Back
+                {submitting ? "Booking..." : "Confirm Appointment"}
               </button>
             )}
           </div>
