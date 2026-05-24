@@ -103,17 +103,17 @@ const Icon = ({ name }: { name: IconName }) => (
 
 const allCovers: Cover[] = [
   {
-    section: "Personal",
-    path: "/personal",
+    section: "Personal Insurance",
+    path: "/ourcovers#personal",
     description:
-      "Life, health, accident, motor, travel, and personal protection cover for you and your loved ones.",
+      "Personal protection covers for your home, travel, car, health, accident, pets, and devices.",
     accent: "#185FA5",
     lightBg: "#E6F1FB",
     image: "/images/home-hero.jpg",
     items: [
       {
         label: "Home Insurance",
-        href: "/personal/home",
+        href: "/covers/home-insurance",
         description:
           "Protect your home, contents, and liability against fire, theft, water damage, and more.",
         icon: <Icon name="home" />,
@@ -127,63 +127,49 @@ const allCovers: Cover[] = [
       },
       {
         label: "Car Insurance",
-        href: "/personal/car",
+        href: "/covers/car-insurance",
         description:
           "Comprehensive and third-party motor cover for your vehicle, wherever the road takes you.",
         icon: <Icon name="car" />,
       },
       {
-        label: "Individual Life & Pension Insurance",
-        href: "/personal/family",
-        description:
-          "Life protection and pension planning to secure your family and retirement goals.",
-        icon: <Icon name="heart" />,
-      },
-      {
         label: "Motorcycle Insurance",
-        href: "/quote",
+        href: "/covers/motorcycle-insurance",
         description:
           "Motorcycle cover for private riders, including liability and optional own-damage benefits.",
         icon: <Icon name="motorcycle" />,
       },
       {
         label: "Personal Accident",
-        href: "/personal/young-adult",
+        href: "/covers/personal-accident-insurance",
         description:
           "Protection for accidental death, disability, and accident-related medical expenses.",
         icon: <Icon name="shield" />,
       },
       {
         label: "Students Personal Accident",
-        href: "/quote",
+        href: "/covers/students-personal-insurance",
         description:
           "Accident protection tailored for students at school, during activities, or in transit.",
         icon: <Icon name="school" />,
       },
       {
-        label: "Funeral Expenses Insurance",
-        href: "/personal/senior",
-        description:
-          "Quick support to help meet funeral and last-expense costs for covered members.",
-        icon: <Icon name="heart" />,
-      },
-      {
         label: "Health Insurance - Individual",
-        href: "/personal/medical",
+        href: "/covers/individual-health-insurance",
         description:
           "Individual medical cover with inpatient, outpatient, dental, optical, and maternity options.",
         icon: <Icon name="medical" />,
       },
       {
         label: "Pet Insurance",
-        href: "/quote",
+        href: "/covers/pet-insurance",
         description:
           "Helps cover eligible veterinary treatment and care expenses for your pets.",
         icon: <Icon name="heart" />,
       },
       {
         label: "Device & Gadget Insurance",
-        href: "/quote",
+        href: "/covers/device-insurance",
         description:
           "Protect phones, laptops, tablets, and gadgets against accidental damage, theft, and related risks.",
         icon: <Icon name="device" />,
@@ -191,8 +177,8 @@ const allCovers: Cover[] = [
     ],
   },
   {
-    section: "Corporate / Business",
-    path: "/business",
+    section: "Business Insurance",
+    path: "/ourcovers#business",
     description:
       "Business insurance solutions to protect your assets, staff, liabilities, cargo, and operations.",
     accent: "#3B6D11",
@@ -201,98 +187,98 @@ const allCovers: Cover[] = [
     items: [
       {
         label: "SME Business Cover",
-        href: "/business/sme",
+        href: "/covers/sme-insurance",
         description:
           "A bundled cover for SMEs, combining essential protection for assets, liability, and staff.",
         icon: <Icon name="business" />,
       },
       {
         label: "Professional Indemnity",
-        href: "/business/liability",
+        href: "/covers/professional-insurance",
         description:
-          "Covers legal costs and compensation where professional advice or service causes a client loss.",
+          "Covers legal costs and compensation where professional advice or service causes client loss.",
         icon: <Icon name="document" />,
       },
       {
         label: "Marine & Cargo Insurance",
-        href: "/industry/transport",
+        href: "/covers/marine-insurance",
         description:
           "Protect imported, exported, and locally transported cargo against loss or damage in transit.",
         icon: <Icon name="cargo" />,
       },
       {
         label: "Aviation Insurance",
-        href: "/quote",
+        href: "/covers/aviation-insurance",
         description:
           "Specialized cover for aviation-related risks, aircraft, operators, and related liabilities.",
         icon: <Icon name="aviation" />,
       },
       {
         label: "Agriculture Insurance",
-        href: "/quote",
+        href: "/covers/agriculture-insurance",
         description:
           "Risk protection for farms, agribusinesses, crops, livestock, and agricultural operations.",
         icon: <Icon name="farm" />,
       },
       {
         label: "General Liability Insurance",
-        href: "/business/liability",
+        href: "/covers/general-liability-insurance",
         description:
           "Protects businesses from third-party injury, property damage, and related liability claims.",
         icon: <Icon name="shield" />,
       },
       {
         label: "Company Car Insurance",
-        href: "/business/transport",
+        href: "/covers/company-car-insurance",
         description:
           "Motor insurance for company-owned vehicles used in daily business operations.",
         icon: <Icon name="car" />,
       },
       {
         label: "Commercial Property Insurance",
-        href: "/business/assets",
+        href: "/covers/commercial-property-insurance",
         description:
           "Protect premises, stock, equipment, and contents against covered business property risks.",
         icon: <Icon name="building" />,
       },
       {
         label: "Work Injury Benefits Act Insurance",
-        href: "/business/employees",
+        href: "/covers/work-insurance",
         description:
           "Mandatory employer cover for employees injured while working or during work-related duties.",
         icon: <Icon name="worker" />,
       },
       {
         label: "Commercial Umbrella Insurance",
-        href: "/quote",
+        href: "/covers/commercial-umbrella-insurance",
         description:
           "Adds an extra layer of liability protection above your primary business policies.",
         icon: <Icon name="umbrella" />,
       },
       {
         label: "Machinery Breakdown Insurance",
-        href: "/business/assets",
+        href: "/covers/machinery-insurance",
         description:
           "Covers sudden and unforeseen mechanical or electrical breakdown of insured machinery.",
         icon: <Icon name="machinery" />,
       },
       {
         label: "Employers Liability",
-        href: "/business/employees",
+        href: "/covers/employers-liability-insurance",
         description:
           "Protects employers against legal liability claims arising from employee injury or illness.",
         icon: <Icon name="people" />,
       },
       {
         label: "Fidelity Guarantee",
-        href: "/business/money",
+        href: "/covers/fidelity-guarantee-insurance",
         description:
           "Covers financial loss caused by employee dishonesty, fraud, theft, or embezzlement.",
         icon: <Icon name="shield" />,
       },
       {
         label: "NSSF Tier 2 to Private Pension Fund",
-        href: "/personal/wealth-owner",
+        href: "/covers/nssf-insurance",
         description:
           "Helps employers transition NSSF Tier 2 contributions into an approved private pension fund.",
         icon: <Icon name="money" />,
@@ -300,8 +286,8 @@ const allCovers: Cover[] = [
     ],
   },
   {
-    section: "Employee Incentives",
-    path: "/business/employees",
+    section: "Employee Benefits",
+    path: "/ourcovers#employee-benefits",
     description:
       "Group covers and benefits that help employers protect, reward, and retain their teams.",
     accent: "#047857",
@@ -310,119 +296,126 @@ const allCovers: Cover[] = [
     items: [
       {
         label: "Group Medical Insurance",
-        href: "/business/employees",
+        href: "/covers/group-medical-insurance",
         description:
           "Comprehensive inpatient and outpatient health cover for employees under one group policy.",
         icon: <Icon name="medical" />,
       },
       {
         label: "Group Life Insurance",
-        href: "/business/employees",
+        href: "/covers/group-life-insurance",
         description:
           "Provides a death benefit to employees' beneficiaries if a covered employee dies in service.",
         icon: <Icon name="heart" />,
       },
       {
         label: "Group Personal Accident Insurance",
-        href: "/business/employees",
+        href: "/covers/group-personal-accident-insurance",
         description:
           "Accident protection for employees, including death, disability, and medical expenses.",
         icon: <Icon name="shield" />,
       },
       {
         label: "Group Last Expense / Funeral Cover",
-        href: "/business/employees",
+        href: "/covers/group-last-expense-funeral-cover",
         description:
           "Group funeral benefit that supports employees' families with last-expense costs.",
         icon: <Icon name="heart" />,
       },
       {
         label: "Group Critical Illness Cover",
-        href: "/business/employees",
+        href: "/covers/group-critical-illness-cover",
         description:
           "Provides a lump-sum benefit when an employee is diagnosed with specified critical illnesses.",
         icon: <Icon name="medical" />,
       },
       {
         label: "Corporate Travel Insurance",
-        href: "/personal/travel",
+        href: "/covers/corporate-travel-insurance",
         description:
           "Travel insurance for employees and executives travelling locally or internationally for business.",
         icon: <Icon name="travel" />,
       },
+      {
+        label: "Group Income Protection / Disability Cover",
+        href: "/covers/group-income-protection",
+        description:
+          "Provides income support for employees who cannot work due to illness, injury, or disability.",
+        icon: <Icon name="shield" />,
+      },
     ],
   },
   {
-    section: "Savings & Investments",
-    path: "/personal/wealth-owner",
+    section: "Life & Investments",
+    path: "/ourcovers#life-investments",
     description:
-      "Savings, pension, investment, and wealth advisory solutions for long-term financial goals.",
+      "Life protection, savings, pension, investment, and wealth planning solutions for long-term goals.",
     accent: "#B45309",
     lightBg: "#FFFBEB",
     image: "/images/risk-cover.jpg",
     items: [
       {
-        label: "Life Insurance & Investment Plans",
-        href: "/personal/family",
+        label: "Whole Life",
+        href: "/covers/whole-life-insurance",
         description:
-          "Plans that combine life protection with long-term investment growth.",
+          "Permanent life insurance designed to provide lifelong protection and financial security.",
         icon: <Icon name="heart" />,
       },
       {
-        label: "Guaranteed Savings Plans",
-        href: "/personal/wealth-owner",
+        label: "Endowment Savings",
+        href: "/covers/endowment-savings-insurance",
         description:
-          "Structured savings plans designed to build funds steadily with predictable benefits.",
+          "A savings and protection plan that pays benefits after a set period or upon death.",
         icon: <Icon name="money" />,
       },
       {
-        label: "School Fees Insurance Plans",
-        href: "/personal/family",
+        label: "Last Expense",
+        href: "/covers/last-expense-insurance",
+        description:
+          "Quick financial support to help cover funeral and final expense costs.",
+        icon: <Icon name="heart" />,
+      },
+      {
+        label: "Education Savings",
+        href: "/covers/education-savings-insurance",
         description:
           "Education-focused plans that help secure future school fees and protect learning continuity.",
         icon: <Icon name="school" />,
       },
       {
-        label: "Lump Sum Investment Plans",
-        href: "/personal/wealth-owner",
+        label: "Critical Illness",
+        href: "/covers/critical-illness-insurance",
         description:
-          "Investment options for clients placing a single lump-sum amount toward future goals.",
-        icon: <Icon name="briefcase" />,
+          "Pays a benefit when the insured is diagnosed with a covered critical illness.",
+        icon: <Icon name="medical" />,
       },
       {
-        label: "Money Market Funds",
-        href: "/personal/wealth-owner",
+        label: "Estate Planning",
+        href: "/covers/estate-planning",
         description:
-          "Low-risk collective investment funds for liquidity, stability, and short-term returns.",
+          "Solutions that help protect, transfer, and preserve wealth for beneficiaries.",
+        icon: <Icon name="building" />,
+      },
+      {
+        label: "Investment Funds",
+        href: "/covers/investment-funds",
+        description:
+          "Investment solutions for clients looking to grow and preserve wealth over time.",
         icon: <Icon name="chart" />,
       },
       {
         label: "Retirement & Pension Plans",
-        href: "/personal/wealth-owner",
+        href: "/covers/retirement-pension-plans",
         description:
           "Retirement planning solutions that help individuals and families prepare for life after work.",
         icon: <Icon name="money" />,
       },
       {
-        label: "Dollar Investment Plans",
-        href: "/personal/wealth-owner",
+        label: "Individual Income Protection / Disability Cover",
+        href: "/covers/individual-income-protection",
         description:
-          "Foreign-currency investment options for dollar-denominated savings and growth.",
-        icon: <Icon name="money" />,
-      },
-      {
-        label: "Family Protection Plans",
-        href: "/personal/family",
-        description:
-          "Protection and savings plans designed around family security, dependants, and long-term goals.",
-        icon: <Icon name="home" />,
-      },
-      {
-        label: "Wealth Advisory Services",
-        href: "/personal/wealth-owner",
-        description:
-          "Personalized guidance for savings, investment planning, retirement, and wealth preservation.",
-        icon: <Icon name="compass" />,
+          "Provides income support when an individual cannot work due to illness, injury, or disability.",
+        icon: <Icon name="shield" />,
       },
     ],
   },
@@ -590,8 +583,7 @@ function EntryPoints() {
                     className="inline-flex items-center gap-1.5 text-sm font-semibold transition-all hover:gap-2.5"
                     style={{ color: cover.accent }}
                   >
-                    View all {cover.items.length} {cover.section.toLowerCase()}{" "}
-                    covers
+                    View all {cover.items.length} covers
                     <svg
                       className="w-4 h-4"
                       fill="none"

@@ -124,10 +124,10 @@ export default function ProductCreate() {
     const { data, error } = await supabase
       .from("insurance_products")
       .insert({
-        title: form.title,
-        slug: form.slug,
-        short_description: form.short_description,
-        status: form.status,
+        title: form.title.trim(),
+        slug: form.slug.trim().toLowerCase(),
+        short_description: form.short_description.trim(),
+        status: form.status.trim().toLowerCase(),
         sort_order: 999,
         page_content: pageContent,
       })

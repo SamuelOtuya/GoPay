@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import heroImg from "../assets/personal-cover.jpg";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import heroImg from "../assets/background.jpg";
+import { supabase } from "../lib/supabase";
 
 interface Cover {
   id: string;
@@ -9,15 +10,17 @@ interface Cover {
     | "Personal Insurance"
     | "Business Insurance"
     | "Employee Benefits"
-    | "Savings & Investments";
+    | "Life & Investments";
   badge: string;
   icon: string;
   description: string;
   path: string;
   popular?: boolean;
+  bgImage?: string;
+  hero_image?: string;
 }
 
-const covers: Cover[] = [
+const defaultCovers: Cover[] = [
   {
     id: "home-insurance",
     name: "Home Insurance",
@@ -26,8 +29,9 @@ const covers: Cover[] = [
     icon: "🏠",
     description:
       "Protects your residence, household contents, and domestic liability against covered risks.",
-    path: "/personal/home",
+    path: "/covers/home-insurance",
     popular: true,
+    bgImage: "/images/home-cover.jpg",
   },
   {
     id: "travel-insurance",
@@ -39,6 +43,7 @@ const covers: Cover[] = [
       "Worldwide travel protection for medical emergencies, trip disruption, baggage loss, and other travel risks.",
     path: "/covers/travel-insurance",
     popular: true,
+    bgImage: "/images/travel-hero.jpg",
   },
   {
     id: "car-insurance",
@@ -48,7 +53,7 @@ const covers: Cover[] = [
     icon: "🚗",
     description:
       "Comprehensive and third-party motor cover for private vehicles against accidents, theft, and liability.",
-    path: "/personal/young-adult",
+    path: "/covers/car-insurance",
     popular: true,
   },
   {
@@ -59,7 +64,7 @@ const covers: Cover[] = [
     icon: "❤️",
     description:
       "Life protection and pension planning options designed to protect your family and build retirement security.",
-    path: "/personal/family",
+    path: "/covers/individual-life-insurance",
   },
   {
     id: "motorcycle-insurance",
@@ -69,7 +74,7 @@ const covers: Cover[] = [
     icon: "🏍️",
     description:
       "Motorcycle cover for private riders, including liability protection and optional own-damage benefits.",
-    path: "/quote",
+    path: "/covers/motorcycle-insurance",
   },
   {
     id: "personal-accident",
@@ -79,7 +84,7 @@ const covers: Cover[] = [
     icon: "🛡️",
     description:
       "Covers accidental death, permanent disability, and medical expenses arising from accidental injury.",
-    path: "/personal/young-adult",
+    path: "/covers/personal-accident-insurance",
   },
   {
     id: "students-personal-accident",
@@ -89,7 +94,7 @@ const covers: Cover[] = [
     icon: "🎓",
     description:
       "Accident protection tailored for students while at school, during activities, or in transit.",
-    path: "/quote",
+    path: "/covers/students-personal-insurance",
   },
   {
     id: "funeral-expenses-insurance",
@@ -99,7 +104,7 @@ const covers: Cover[] = [
     icon: "🕊️",
     description:
       "Provides quick support to help meet funeral and last-expense costs for covered members.",
-    path: "/personal/senior",
+    path: "/covers/funeral-insurance",
   },
   {
     id: "individual-health-insurance",
@@ -109,7 +114,7 @@ const covers: Cover[] = [
     icon: "💊",
     description:
       "Individual health cover with options for inpatient, outpatient, dental, optical, and maternity benefits.",
-    path: "/personal/medical",
+    path: "/covers/individual-health-insurance",
     popular: true,
   },
   {
@@ -120,7 +125,7 @@ const covers: Cover[] = [
     icon: "🐾",
     description:
       "Helps cover eligible veterinary costs and care expenses for your pets.",
-    path: "/quote",
+    path: "/covers/pet-insurance",
   },
   {
     id: "device-gadget-insurance",
@@ -130,7 +135,7 @@ const covers: Cover[] = [
     icon: "📱",
     description:
       "Protects phones, laptops, tablets, and other gadgets against accidental damage, theft, and related risks.",
-    path: "/quote",
+    path: "/covers/device-insurance",
   },
   {
     id: "sme-business-cover",
@@ -140,7 +145,7 @@ const covers: Cover[] = [
     icon: "📦",
     description:
       "A bundled business cover for SMEs, combining essential protection for assets, liability, and employees.",
-    path: "/product/sme-package",
+    path: "/covers/sme-insurance",
     popular: true,
   },
   {
@@ -151,7 +156,7 @@ const covers: Cover[] = [
     icon: "📜",
     description:
       "Covers legal costs and compensation if a client claims your professional advice or service caused a loss.",
-    path: "/business/liability",
+    path: "/covers/professional-insurance",
     popular: true,
   },
   {
@@ -162,7 +167,7 @@ const covers: Cover[] = [
     icon: "🚢",
     description:
       "Protects imported, exported, and locally transported cargo against loss or damage in transit.",
-    path: "/industry/transport",
+    path: "/covers/marine-insurance",
   },
   {
     id: "aviation-insurance",
@@ -172,7 +177,7 @@ const covers: Cover[] = [
     icon: "🛩️",
     description:
       "Specialized cover for aviation-related risks, including aircraft, operators, and associated liabilities.",
-    path: "/quote",
+    path: "/covers/aviation-insurance",
   },
   {
     id: "agriculture-insurance",
@@ -182,7 +187,7 @@ const covers: Cover[] = [
     icon: "🌾",
     description:
       "Risk protection for farms, agribusinesses, crops, livestock, equipment, and agricultural operations.",
-    path: "/quote",
+    path: "/covers/agriculture-insurance",
   },
   {
     id: "general-liability-insurance",
@@ -192,7 +197,7 @@ const covers: Cover[] = [
     icon: "⚖️",
     description:
       "Protects businesses from third-party injury, property damage, and related liability claims.",
-    path: "/business/liability",
+    path: "/covers/general-liability-insurance",
   },
   {
     id: "company-car-insurance",
@@ -202,7 +207,7 @@ const covers: Cover[] = [
     icon: "🚙",
     description:
       "Motor insurance for company-owned vehicles used in business operations.",
-    path: "/business/transport",
+    path: "/covers/company-car-insurance",
   },
   {
     id: "commercial-property-insurance",
@@ -212,7 +217,7 @@ const covers: Cover[] = [
     icon: "🏢",
     description:
       "Protects business premises, stock, equipment, and contents against covered property risks.",
-    path: "/business/assets",
+    path: "/covers/commercial-property-insurance",
   },
   {
     id: "wiba",
@@ -222,7 +227,7 @@ const covers: Cover[] = [
     icon: "👷",
     description:
       "Mandatory employer cover for employees injured while working or during work-related duties.",
-    path: "/business/employees",
+    path: "/covers/work-insurance",
     popular: true,
   },
   {
@@ -233,7 +238,7 @@ const covers: Cover[] = [
     icon: "☂️",
     description:
       "Adds an extra layer of liability protection above your primary business insurance policies.",
-    path: "/quote",
+    path: "/covers/commercial-umbrella-insurance",
   },
   {
     id: "machinery-breakdown-insurance",
@@ -243,7 +248,7 @@ const covers: Cover[] = [
     icon: "⚙️",
     description:
       "Covers sudden and unforeseen mechanical or electrical breakdown of insured machinery.",
-    path: "/business/assets",
+    path: "/covers/machinery-insurance",
   },
   {
     id: "employers-liability",
@@ -253,7 +258,7 @@ const covers: Cover[] = [
     icon: "🤝",
     description:
       "Protects employers against legal liability claims arising from employee injury or illness.",
-    path: "/business/employees",
+    path: "/covers/employers-liability-insurance",
   },
   {
     id: "fidelity-guarantee",
@@ -263,7 +268,7 @@ const covers: Cover[] = [
     icon: "🔐",
     description:
       "Covers financial loss caused by employee dishonesty, fraud, theft, or embezzlement.",
-    path: "/business/money",
+    path: "/covers/fidelity-guarantee-insurance",
   },
   {
     id: "nssf-tier-2-private-pension",
@@ -273,7 +278,7 @@ const covers: Cover[] = [
     icon: "💰",
     description:
       "Helps employers transition NSSF Tier 2 contributions into an approved private pension fund.",
-    path: "/personal/wealth-owner",
+    path: "/covers/nssf-insurance",
   },
   {
     id: "group-medical-insurance",
@@ -283,7 +288,7 @@ const covers: Cover[] = [
     icon: "🏥",
     description:
       "Comprehensive inpatient and outpatient health cover for employees under one group policy.",
-    path: "/business/employees",
+    path: "/covers/group-medical-insurance",
     popular: true,
   },
   {
@@ -294,7 +299,7 @@ const covers: Cover[] = [
     icon: "🤝",
     description:
       "Provides a death benefit to employees' beneficiaries if a covered employee dies while in service.",
-    path: "/business/employees",
+    path: "/covers/group-life-insurance",
   },
   {
     id: "group-personal-accident-insurance",
@@ -304,7 +309,7 @@ const covers: Cover[] = [
     icon: "🦺",
     description:
       "Accident protection for employees, including accidental death, disability, and medical expenses.",
-    path: "/business/employees",
+    path: "/covers/group-personal-accident-insurance",
   },
   {
     id: "group-last-expense-funeral-cover",
@@ -314,7 +319,7 @@ const covers: Cover[] = [
     icon: "🕊️",
     description:
       "Group funeral benefit that supports employees' families with last-expense costs.",
-    path: "/business/employees",
+    path: "/covers/group-last-expense-funeral-cover",
   },
   {
     id: "group-critical-illness-cover",
@@ -324,7 +329,7 @@ const covers: Cover[] = [
     icon: "💉",
     description:
       "Provides a lump-sum benefit when a covered employee is diagnosed with specified critical illnesses.",
-    path: "/business/employees",
+    path: "/covers/group-critical-illness-cover",
   },
   {
     id: "corporate-travel-insurance",
@@ -334,98 +339,109 @@ const covers: Cover[] = [
     icon: "✈️",
     description:
       "Travel insurance for employees and executives travelling for business locally or internationally.",
-    path: "/covers/travel-insurance",
+    path: "/covers/corporate-travel-insurance",
   },
   {
-    id: "life-insurance-investment-plans",
-    name: "Life Insurance & Investment Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
+    id: "group-income-protection",
+    name: "Group Income Protection / Disability Cover",
+    category: "Employee Benefits",
+    badge: "Employees",
+    icon: "🛡️",
+    description:
+      "Provides income support for employees who cannot work due to illness, injury, or disability.",
+    path: "/covers/group-income-protection",
+  },
+
+  {
+    id: "whole-life",
+    name: "Whole Life",
+    category: "Life & Investments",
+    badge: "Life",
     icon: "❤️",
     description:
-      "Plans that combine life protection with long-term investment growth.",
-    path: "/personal/family",
+      "Permanent life insurance designed to provide lifelong protection and financial security for beneficiaries.",
+    path: "/covers/whole-life-insurance",
     popular: true,
   },
   {
-    id: "guaranteed-savings-plans",
-    name: "Guaranteed Savings Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
+    id: "endowment-savings",
+    name: "Endowment Savings",
+    category: "Life & Investments",
+    badge: "Life",
     icon: "🏦",
     description:
-      "Structured savings plans designed to build funds steadily with predictable benefits.",
-    path: "/personal/wealth-owner",
+      "A savings and protection plan that pays benefits after a set period or upon death.",
+    path: "/covers/endowment-savings-insurance",
   },
   {
-    id: "school-fees-insurance-plans",
-    name: "School Fees Insurance Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
+    id: "last-expense",
+    name: "Last Expense",
+    category: "Life & Investments",
+    badge: "Life",
+    icon: "🕊️",
+    description:
+      "Provides quick financial support to help cover funeral and final expense costs.",
+    path: "/covers/last-expense-insurance",
+  },
+  {
+    id: "education-savings",
+    name: "Education Savings",
+    category: "Life & Investments",
+    badge: "Life",
     icon: "🎓",
     description:
-      "Education-focused plans that help secure future school fees and protect learning continuity.",
-    path: "/personal/family",
+      "Helps parents and guardians save toward future education costs while protecting learning continuity.",
+    path: "/covers/education-savings-insurance",
   },
   {
-    id: "lump-sum-investment-plans",
-    name: "Lump Sum Investment Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
-    icon: "💼",
+    id: "critical-illness",
+    name: "Critical Illness",
+    category: "Life & Investments",
+    badge: "Life",
+    icon: "💉",
     description:
-      "Investment options for clients looking to place a single lump-sum amount toward future goals.",
-    path: "/personal/wealth-owner",
+      "Pays a benefit when the insured is diagnosed with a covered critical illness.",
+    path: "/covers/critical-illness-insurance",
   },
   {
-    id: "money-market-funds",
-    name: "Money Market Funds",
-    category: "Savings & Investments",
-    badge: "Savings",
+    id: "estate-planning",
+    name: "Estate Planning",
+    category: "Life & Investments",
+    badge: "Life",
+    icon: "🏛️",
+    description:
+      "Solutions that help protect, transfer, and preserve wealth for beneficiaries.",
+    path: "/covers/estate-planning",
+  },
+  {
+    id: "investment-funds",
+    name: "Investment Funds",
+    category: "Life & Investments",
+    badge: "Life",
     icon: "📈",
     description:
-      "Low-risk collective investment funds for liquidity, stability, and short-term returns.",
-    path: "/personal/wealth-owner",
+      "Investment solutions for clients looking to grow and preserve wealth over time.",
+    path: "/covers/investment-funds",
   },
   {
     id: "retirement-pension-plans",
     name: "Retirement & Pension Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
+    category: "Life & Investments",
+    badge: "Life",
     icon: "💰",
     description:
       "Retirement planning solutions that help individuals and families prepare for life after work.",
-    path: "/personal/wealth-owner",
+    path: "/covers/retirement-pension-plans",
   },
   {
-    id: "dollar-investment-plans",
-    name: "Dollar Investment Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
-    icon: "💵",
+    id: "individual-income-protection",
+    name: "Individual Income Protection / Disability Cover",
+    category: "Life & Investments",
+    badge: "Life",
+    icon: "🛡️",
     description:
-      "Foreign-currency investment options for clients seeking dollar-denominated savings and growth.",
-    path: "/personal/wealth-owner",
-  },
-  {
-    id: "family-protection-plans",
-    name: "Family Protection Plans",
-    category: "Savings & Investments",
-    badge: "Savings",
-    icon: "👨‍👩‍👧‍👦",
-    description:
-      "Protection and savings plans designed around family security, dependants, and long-term goals.",
-    path: "/personal/family",
-  },
-  {
-    id: "wealth-advisory-services",
-    name: "Wealth Advisory Services",
-    category: "Savings & Investments",
-    badge: "Savings",
-    icon: "🧭",
-    description:
-      "Personalized guidance for savings, investment planning, retirement, and wealth preservation.",
-    path: "/personal/wealth-owner",
+      "Provides income support when an individual cannot work due to illness, injury, or disability.",
+    path: "/covers/individual-income-protection",
   },
 ];
 
@@ -433,14 +449,14 @@ const tabs = [
   "Personal Insurance",
   "Business Insurance",
   "Employee Benefits",
-  "Savings & Investments",
+  "Life & Investments",
 ] as const;
 
 const badgeColors: Record<string, string> = {
   Personal: "bg-red-50 text-red-600",
   Business: "bg-blue-50 text-blue-600",
   Employees: "bg-emerald-50 text-emerald-600",
-  Savings: "bg-amber-50 text-amber-700",
+  Life: "bg-amber-50 text-amber-700",
 };
 
 const CoverCard = ({
@@ -450,6 +466,7 @@ const CoverCard = ({
   cover: Cover;
   highlight: string;
 }) => {
+  const cardImage = cover.hero_image || cover.bgImage;
   const highlightText = (text: string) => {
     if (!highlight) return <>{text}</>;
     const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -482,29 +499,41 @@ const CoverCard = ({
           : "border-slate-200 shadow-md shadow-slate-100"
       }`}
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-orange-400 to-blue-600" />
+      {cardImage && (
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={cardImage}
+            alt={cover.name}
+            className="w-full h-full object-cover object-center opacity-55 group-hover:scale-105 transition-all duration-700"
+          />
 
-      {cover.popular && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
-            Popular
-          </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-white/1" />
         </div>
       )}
 
-      <div className="p-6 flex flex-col min-h-[310px]">
-        <div className="flex items-start justify-between mb-5">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-orange-400 to-blue-600" />
+
+      <div className="relative p-6 flex flex-col min-h-[340px]">
+        <div className="flex items-start justify-between gap-3 mb-5">
           <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-red-50 to-slate-100 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
             {cover.icon}
           </div>
 
-          <span
-            className={`text-xs font-bold px-3 py-1.5 rounded-full ${
-              badgeColors[cover.badge] || "bg-slate-100 text-slate-600"
-            }`}
-          >
-            {cover.badge}
-          </span>
+          <div className="flex flex-col items-end gap-2">
+            {cover.popular && (
+              <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                Popular
+              </span>
+            )}
+
+            <span
+              className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+                badgeColors[cover.badge] || "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {cover.badge}
+            </span>
+          </div>
         </div>
 
         <h3 className="font-extrabold text-slate-900 text-lg mb-3 leading-snug group-hover:text-red-600 transition-colors">
@@ -515,26 +544,14 @@ const CoverCard = ({
           {highlightText(cover.description)}
         </p>
 
-        <div className="mt-auto flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between gap-3">
           <span className="text-sm font-bold text-[#0F2240] group-hover:text-red-600 transition-colors">
             Learn More
           </span>
 
-          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center group-hover:bg-red-500 transition-all duration-300">
-            <svg
-              className="w-5 h-5 text-red-500 group-hover:text-white transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </div>
+          <span className="px-4 py-2 rounded-xl bg-red-500 text-white text-xs font-bold shadow-md group-hover:bg-red-600 transition-colors">
+            Get Quote
+          </span>
         </div>
       </div>
     </Link>
@@ -542,9 +559,67 @@ const CoverCard = ({
 };
 
 const OurCovers = () => {
+  const [covers, setCovers] = useState<Cover[]>(defaultCovers);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const [activeTab, setActiveTab] =
     useState<(typeof tabs)[number]>("Personal Insurance");
   const [search, setSearch] = useState("");
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const hashMap: Record<string, (typeof tabs)[number]> = {
+      "#personal": "Personal Insurance",
+      "#business": "Business Insurance",
+      "#employee-benefits": "Employee Benefits",
+      "#life-investments": "Life & Investments",
+    };
+
+    const tab = hashMap[location.hash];
+
+    if (tab) {
+      setActiveTab(tab);
+      setSearch("");
+    }
+  }, [location.hash]);
+
+  useEffect(() => {
+    const fetchHeroImages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("insurance_products")
+          .select("slug, page_content, image_url");
+
+        if (error) {
+          console.error("Error fetching hero images:", error.message);
+          return;
+        }
+
+        if (!data) return;
+
+        setCovers((prevCovers) =>
+          prevCovers.map((cover) => {
+            const slug = cover.path.split("/").pop();
+            const product = data.find((item) => item.slug === slug);
+
+            const heroImage =
+              product?.page_content?.heroImage ||
+              product?.page_content?.hero?.heroImage ||
+              product?.image_url;
+
+            return {
+              ...cover,
+              hero_image: heroImage || cover.bgImage,
+            };
+          }),
+        );
+      } finally {
+        setImagesLoaded(true);
+      }
+    };
+
+    fetchHeroImages();
+  }, []);
 
   const filtered = useMemo(() => {
     const byTab = covers.filter((c) => c.category === activeTab);
@@ -556,7 +631,7 @@ const OurCovers = () => {
         c.description.toLowerCase().includes(q) ||
         c.badge.toLowerCase().includes(q),
     );
-  }, [activeTab, search]);
+  }, [activeTab, search, covers]);
 
   const allSearchResults = useMemo(() => {
     if (!search.trim()) return [];
@@ -567,30 +642,62 @@ const OurCovers = () => {
         c.description.toLowerCase().includes(q) ||
         c.badge.toLowerCase().includes(q),
     );
-  }, [search]);
+  }, [search, covers]);
 
   const displayResults = search.trim() ? allSearchResults : filtered;
   const totalCount = covers.length;
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative pt-28 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-blue-200">
-        <img
-          src={heroImg}
-          alt="Insurance covers"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0F2240] via-[#0F2240]/90 to-[#0F2240]/60" />
+      <div className="relative pt-28 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#0F2240]">
+        {/* Background */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
           style={{
-            backgroundImage:
-              "linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px)",
-            backgroundSize: "60px 60px",
+            backgroundImage: `url(${heroImg})`,
           }}
         />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+
+        {/* Cinematic overlays */}
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-[#0F2240]/55" />
+
+        {/* Premium ambient effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Grid */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px)",
+              backgroundSize: "80px 80px",
+            }}
+          />
+
+          {/* Right glow */}
+          <div className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full bg-[#1B3A6B]/30 blur-3xl" />
+
+          {/* Left glow */}
+          <div className="absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-[#2563EB]/10 blur-3xl" />
+
+          {/* Vertical light line */}
+          <div
+            className="absolute top-0 right-1/4 w-px h-full opacity-[0.07]"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent, #60a5fa, transparent)",
+            }}
+          />
+
+          {/* Horizontal line */}
+          <div
+            className="absolute left-0 top-1/3 h-px w-full opacity-[0.05]"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, #60a5fa, transparent)",
+            }}
+          />
+        </div>
 
         <div className="max-w-4xl mx-auto relative">
           <nav className="flex items-center gap-2 text-sm text-white/50 mb-6">
@@ -739,7 +846,16 @@ const OurCovers = () => {
           </div>
         )}
 
-        {displayResults.length > 0 ? (
+        {!imagesLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="h-[340px] rounded-3xl bg-slate-100 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : displayResults.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {displayResults.map((cover) => (
               <CoverCard key={cover.id} cover={cover} highlight={search} />

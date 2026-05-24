@@ -16,31 +16,49 @@ import {
 
 export default function InsuranceProductPage() {
   const { slug } = useParams();
+
   const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchProduct();
   }, [slug]);
 
   const fetchProduct = async () => {
+    setLoading(true);
+    setErrorMessage("");
+
     const { data, error } = await supabase
       .from("insurance_products")
       .select("*")
       .eq("slug", slug)
       .eq("status", "published")
-      .single();
+      .maybeSingle();
+
+    setLoading(false);
 
     if (error) {
       console.error(error);
+      setErrorMessage(error.message);
+      return;
+    }
+
+    if (!data) {
+      setErrorMessage("Product not found or not published.");
       return;
     }
 
     setProduct(data);
   };
 
-  if (!product) return <p className="p-10">Loading...</p>;
+  if (loading) return <p className="p-10">Loading...</p>;
 
-  const content = product.page_content;
+  if (errorMessage) {
+    return <p className="p-10 text-red-600">{errorMessage}</p>;
+  }
+
+  const content = product.page_content || {};
 
   return (
     <div className="min-h-screen bg-white">

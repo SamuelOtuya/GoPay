@@ -48,6 +48,34 @@ const allCovers = [
   },
 ];
 
+const coverServices = [
+  {
+    label: "All Covers",
+    href: "/ourcovers",
+    description: "View all insurance covers",
+  },
+  {
+    label: "Personal Insurance",
+    href: "/ourcovers#personal",
+    description: "Home, travel, car, health and personal covers",
+  },
+  {
+    label: "Business Insurance",
+    href: "/ourcovers#business",
+    description: "SME, property, liability and business covers",
+  },
+  {
+    label: "Employee Benefits",
+    href: "/ourcovers#employee-benefits",
+    description: "Group medical, life and employee covers",
+  },
+  {
+    label: "Life & Investments",
+    href: "/ourcovers#life-investments",
+    description: "Pension, savings and investment plans",
+  },
+];
+
 const clientServices = [
   {
     label: "Report a Claim",
@@ -118,7 +146,7 @@ const clientServices = [
 ];
 
 const navLinks = [
-  { label: "Our Covers", path: "/ourcovers" },
+  { label: "Our Covers", path: "/ourcovers", hasCoversDropdown: true },
   { label: "Client Services", path: "/services", hasDropdown: true },
   { label: "Risk Guide", path: "/risk" },
   { label: "About", path: "/about" },
@@ -135,6 +163,19 @@ const Navbar = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
   // Timeout ref to delay closing so the dropdown doesn't flicker when
   // the cursor briefly crosses the gap between the trigger and the panel.
+  const coversCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCoversMouseEnter = () => {
+    if (coversCloseTimer.current) clearTimeout(coversCloseTimer.current);
+    setCoversOpen(true);
+  };
+
+  const handleCoversMouseLeave = () => {
+    coversCloseTimer.current = setTimeout(() => {
+      setCoversOpen(false);
+    }, 120);
+  };
+
   const servicesCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
 
@@ -206,9 +247,89 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav */}
+
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) =>
-              link.hasDropdown ? (
+              link.hasCoversDropdown ? (
+                <div
+                  key={link.path}
+                  className="relative"
+                  ref={coversRef}
+                  onMouseEnter={handleCoversMouseEnter}
+                  onMouseLeave={handleCoversMouseLeave}
+                >
+                  <button
+                    className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(link.path) || coversOpen
+                        ? "bg-[#1B3A6B] text-white"
+                        : isScrolled
+                          ? "text-slate-600 hover:text-[#1B3A6B] hover:bg-blue-50"
+                          : "text-white/80 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {link.label}
+                    <svg
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        coversOpen ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  {coversOpen && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="h-1 w-full bg-gradient-to-r from-[#1B3A6B] to-[#F59E0B]" />
+                      <div className="p-2">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 pt-2 pb-1.5">
+                          Our Covers
+                        </p>
+
+                        {coverServices.map((item) => (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group"
+                          >
+                            <span className="mt-0.5 text-[#1B3A6B] group-hover:text-[#F59E0B] transition-colors flex-shrink-0">
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.8}
+                                  d="M9 12h6m-6 4h6M5 7h14M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                />
+                              </svg>
+                            </span>
+
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800 group-hover:text-[#1B3A6B] transition-colors leading-tight">
+                                {item.label}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-0.5 leading-tight">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : link.hasDropdown ? (
                 /* Client Services — hover-triggered dropdown */
                 <div
                   key={link.path}

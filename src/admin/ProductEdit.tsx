@@ -356,10 +356,10 @@ export default function ProductEdit() {
     const { error } = await supabase
       .from("insurance_products")
       .update({
-        title: form.title,
-        slug: form.slug,
-        short_description: form.short_description,
-        status: form.status,
+        title: form.title.trim(),
+        slug: form.slug.trim().toLowerCase(),
+        short_description: form.short_description.trim(),
+        status: form.status.trim().toLowerCase(),
         page_content: newPageContent,
         updated_at: new Date().toISOString(),
       })
@@ -443,18 +443,18 @@ export default function ProductEdit() {
             setRiskRows={setRiskRows}
           />
 
-          <CoverageEditor
-            form={form}
-            updateField={updateField}
-            coverageGroups={coverageGroups}
-            setCoverageGroups={setCoverageGroups}
-          />
-
           <WhoNeedsItEditor
             form={form}
             updateField={updateField}
             segments={segments}
             setSegments={setSegments}
+          />
+
+          <CoverageEditor
+            form={form}
+            updateField={updateField}
+            coverageGroups={coverageGroups}
+            setCoverageGroups={setCoverageGroups}
           />
 
           <ClaimsEditor
