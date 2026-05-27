@@ -12,6 +12,7 @@ import {
   FAQ,
   FinalCTA,
   WhoNeedsIt,
+  CustomSection,
 } from "../components/insurance/InsurancePageComponents";
 
 export default function InsuranceProductPage() {
@@ -71,6 +72,8 @@ export default function InsuranceProductPage() {
       {content.riskMap && <RiskMap {...content.riskMap} />}
 
       {content.whoNeedsIt && <WhoNeedsIt {...content.whoNeedsIt} />}
+
+      {content.customSection && <CustomSection {...content.customSection} />}
 
       {content.coverage && <CoverageTable {...content.coverage} />}
 

@@ -24,10 +24,14 @@ export interface WhyCard {
 }
 
 export interface WhyProps {
+  layoutType?: "cards" | "table";
   sectionLabel: string;
   heading: string;
   subheading: string;
-  cards: WhyCard[];
+
+  cards?: WhyCard[];
+  table?: FlexibleTable;
+
   pullQuote: {
     eyebrow: string;
     headline: string;
@@ -44,12 +48,16 @@ export interface WhatCard {
 }
 
 export interface WhatProps {
+  layoutType?: "cards" | "table";
   sectionLabel: string;
   heading: string;
   subheading: string;
   intro1: string;
   intro2: string;
-  cards: WhatCard[];
+
+  cards?: WhatCard[];
+  table?: FlexibleTable;
+
   closing1: string;
   closing2: string;
 }
@@ -63,14 +71,34 @@ export interface RiskRow {
 }
 
 export interface RiskMapProps {
+  layoutType?: "riskmap" | "table" | "cards";
   sectionLabel: string;
   heading: string;
   subheading: string;
   intro1: string;
   intro2: string;
-  rows: RiskRow[];
+
+  // old/special risk map layout
+  rows?: RiskRow[];
+
+  // flexible table layout
+  table?: FlexibleTable;
+
+  // simple card layout
+  cards?: GenericCard[];
+
   closing1: string;
   closing2: string;
+}
+
+export interface CustomSectionProps {
+  enabled?: boolean;
+  layoutType?: "cards" | "table";
+  sectionLabel: string;
+  heading: string;
+  intro: string;
+  table?: FlexibleTable;
+  cards?: GenericCard[];
 }
 
 export interface CoverageGroup {
@@ -137,11 +165,31 @@ export interface SegmentRow {
   risk: string;
 }
 
+export interface GenericCard {
+  img?: string;
+  title: string;
+  text: string;
+}
+
+export interface FlexibleTable {
+  columns: string[];
+  rows: string[][];
+}
+
 export interface WhoNeedsItProps {
+  layoutType?: "table" | "cards";
   sectionLabel: string;
   heading: string;
   intro: string;
-  rows: SegmentRow[];
+
+  // old support
+  rows?: SegmentRow[];
+
+  // new flexible table
+  table?: FlexibleTable;
+
+  // new cards layout
+  cards?: GenericCard[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -222,159 +270,263 @@ export const PageHero = ({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WhyItMatters = ({
+  layoutType = "cards",
   sectionLabel,
   heading,
   subheading,
-  cards,
+  cards = [],
+  table,
   pullQuote,
-}: WhyProps) => (
-  <section className="py-20 bg-slate-100">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-12">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base">{subheading}</p>
-      </div>
+}: WhyProps) => {
+  const tableColumns = table?.columns || [];
+  const tableRows = table?.rows || [];
 
-      {/* Cards matching WhatIsIt style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {cards.map((card, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-          >
-            <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-              <img
-                src={card.img}
-                alt={card.title || `Scenario ${i + 1}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const p = (e.target as HTMLImageElement).parentElement!;
-                  p.style.background = "#e2e8f0";
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <div className="p-5 flex flex-col flex-1">
-              {card.title && (
-                <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                  {card.title}
-                </p>
-              )}
-              <p className="text-slate-600 text-sm leading-relaxed">
-                {card.text}
-              </p>
-            </div>
+  return (
+    <section className="py-20 bg-slate-100">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-12">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+            {heading}
+          </h2>
+          <p className="text-slate-500 text-base">{subheading}</p>
+        </div>
+
+        {/* Cards matching WhatIsIt style */}
+        {layoutType === "cards" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {cards.map((card, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+              >
+                <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={card.img}
+                    alt={card.title || `Scenario ${i + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const p = (e.target as HTMLImageElement).parentElement!;
+                      p.style.background = "#e2e8f0";
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+
+                <div className="p-5 flex flex-col flex-1">
+                  {card.title && (
+                    <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                      {card.title}
+                    </p>
+                  )}
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {card.text}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
+        )}
 
-    {/* Full-bleed pull quote — bg stretches edge-to-edge */}
-    <div className="bg-[#0F2240] w-full px-6 sm:px-10 lg:px-16 py-10">
-      <div className="max-w-7xl mx-auto">
-        <p className="text-white/60 text-sm mb-3 italic">{pullQuote.eyebrow}</p>
-        <p className="text-white text-lg sm:text-xl font-medium leading-relaxed mb-4">
-          {pullQuote.headline}
-        </p>
-        <p className="text-white/80 text-base leading-relaxed mb-4">
-          {pullQuote.body1}
-        </p>
-        <p className="text-white/70 text-base leading-relaxed">
-          {pullQuote.body2}
-        </p>
+        {layoutType === "table" && (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-12">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#0F2240]">
+                  {tableColumns.map((column, i) => (
+                    <th
+                      key={i}
+                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                  >
+                    {tableColumns.map((_, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className={`px-5 py-4 text-slate-600 align-top ${
+                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
+                        }`}
+                      >
+                        {row[colIndex] || ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </div>
-  </section>
-);
+      {/* Full-bleed pull quote — bg stretches edge-to-edge */}
+      <div className="bg-[#0F2240] w-full px-6 sm:px-10 lg:px-16 py-10">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-white/60 text-sm mb-3 italic">
+            {pullQuote.eyebrow}
+          </p>
+          <p className="text-white text-lg sm:text-xl font-medium leading-relaxed mb-4">
+            {pullQuote.headline}
+          </p>
+          <p className="text-white/80 text-base leading-relaxed mb-4">
+            {pullQuote.body1}
+          </p>
+          <p className="text-white/70 text-base leading-relaxed">
+            {pullQuote.body2}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WHAT IS IT
 // ─────────────────────────────────────────────────────────────────────────────
-
 export const WhatIsIt = ({
+  layoutType = "cards",
   sectionLabel,
   heading,
   subheading,
   intro1,
   intro2,
-  cards,
+  cards = [],
+  table,
   closing1,
   closing2,
-}: WhatProps) => (
-  <section className="py-20 bg-slate-50">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-4">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base mb-3">{subheading}</p>
-      </div>
-      <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
-        {intro1}
-      </p>
-      <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
-        {intro2}
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        {cards.map((card, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-          >
-            <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-              <img
-                src={card.img}
-                alt={card.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const p = (e.target as HTMLImageElement).parentElement!;
-                  p.style.background = "#e2e8f0";
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <div className="p-5 flex flex-col flex-1">
-              <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                {card.title}
-              </p>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                {card.text}
-              </p>
-              {card.bullets && (
-                <ul className="mt-3 space-y-2">
-                  {card.bullets.map((b, j) => (
-                    <li key={j} className="text-sm text-slate-600">
-                      <span className="font-semibold text-[#0F2240]">
-                        {b.label}
-                      </span>{" "}
-                      {b.desc}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+}: WhatProps) => {
+  const tableColumns = table?.columns || [];
+  const tableRows = table?.rows || [];
 
-    {/* Full-bleed closing block */}
-    <div className="w-full bg-[#0F2240]  border-t border-b border-slate-200 py-8">
-      <div className="max-w-7xl mx-auto px-6">
-        <p className="text-white text-base leading-relaxed mb-3">{closing1}</p>
-        <p className="text-slate-400 text-base leading-relaxed">{closing2}</p>
+  return (
+    <section className="py-20 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-4">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+            {heading}
+          </h2>
+          <p className="text-slate-500 text-base mb-3">{subheading}</p>
+        </div>
+
+        <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
+          {intro1}
+        </p>
+        <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
+          {intro2}
+        </p>
+
+        {layoutType === "cards" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            {cards.map((card, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+              >
+                <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={card.img}
+                    alt={card.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const p = (e.target as HTMLImageElement).parentElement!;
+                      p.style.background = "#e2e8f0";
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                    {card.title}
+                  </p>
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {card.text}
+                  </p>
+
+                  {card.bullets && (
+                    <ul className="mt-3 space-y-2">
+                      {card.bullets.map((b, j) => (
+                        <li key={j} className="text-sm text-slate-600">
+                          <span className="font-semibold text-[#0F2240]">
+                            {b.label}
+                          </span>{" "}
+                          {b.desc}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {layoutType === "table" && (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-10">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#0F2240]">
+                  {tableColumns.map((column, i) => (
+                    <th
+                      key={i}
+                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                  >
+                    {tableColumns.map((_, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className={`px-5 py-4 text-slate-600 align-top ${
+                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
+                        }`}
+                      >
+                        {row[colIndex] || ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </div>
-  </section>
-);
+
+      <div className="w-full bg-[#0F2240] border-t border-b border-slate-200 py-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-white text-base leading-relaxed mb-3">
+            {closing1}
+          </p>
+          <p className="text-slate-400 text-base leading-relaxed">{closing2}</p>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // RISK MAP — Expandable cards
@@ -466,109 +618,353 @@ const RiskCard = ({ row, index }: { row: RiskRow; index: number }) => {
 };
 
 export const RiskMap = ({
+  layoutType = "riskmap",
   sectionLabel,
   heading,
   subheading,
   intro1,
   intro2,
-  rows,
+  rows = [],
+  table,
+  cards = [],
   closing1,
   closing2,
-}: RiskMapProps) => (
-  <section className="py-20 bg-white">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-4">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base mb-2">{subheading}</p>
-      </div>
-      <p className="text-slate-600 text-base mb-2 max-w-3xl">{intro1}</p>
-      <p className="text-slate-600 text-base mb-10 max-w-3xl">{intro2}</p>
+}: RiskMapProps) => {
+  const tableColumns = table?.columns || [];
+  const tableRows = table?.rows || [];
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {rows.map((row, i) => (
-          <RiskCard key={i} row={row} index={i} />
-        ))}
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-4">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+            {heading}
+          </h2>
+
+          <p className="text-slate-500 text-base mb-2">{subheading}</p>
+        </div>
+
+        <p className="text-slate-600 text-base mb-2 max-w-3xl">{intro1}</p>
+        <p className="text-slate-600 text-base mb-10 max-w-3xl">{intro2}</p>
+
+        {layoutType === "riskmap" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {rows.map((row, i) => (
+              <RiskCard key={i} row={row} index={i} />
+            ))}
+          </div>
+        )}
+
+        {layoutType === "cards" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {cards.map((card, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+              >
+                {card.img && (
+                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+                    <img
+                      src={card.img}
+                      alt={card.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const p = (e.target as HTMLImageElement).parentElement!;
+                        p.style.background = "#e2e8f0";
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                )}
+
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                    {card.title}
+                  </p>
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {card.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {layoutType === "table" && (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-8">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#0F2240]">
+                  {tableColumns.map((column, i) => (
+                    <th
+                      key={i}
+                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                  >
+                    {tableColumns.map((_, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className={`px-5 py-4 text-slate-600 align-top ${
+                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
+                        }`}
+                      >
+                        {row[colIndex] || ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </div>
-    <div className="bg-[#0F2240] border border-slate-200  p-7 w-full">
-      <p className="text-white text-base leading-relaxed mb-2 text-center">
-        {closing1}
-      </p>
-      <p className="text-slate-400 text-base leading-relaxed text-center">
-        {closing2}
-      </p>
-    </div>
-  </section>
-);
+
+      <div className="bg-[#0F2240] border border-slate-200 p-7 w-full">
+        <p className="text-white text-base leading-relaxed mb-2 text-center">
+          {closing1}
+        </p>
+        <p className="text-slate-400 text-base leading-relaxed text-center">
+          {closing2}
+        </p>
+      </div>
+    </section>
+  );
+};
 
 // WHO NEEDS IT SECTION
 
 export const WhoNeedsIt = ({
+  layoutType = "table",
   sectionLabel,
   heading,
   intro,
-  rows,
-}: WhoNeedsItProps) => (
-  <section className="py-20 bg-white">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-6">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-3">
-          {heading}
-        </h2>
-        <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
-          {intro}
-        </p>
-      </div>
+  rows = [],
+  table,
+  cards = [],
+}: WhoNeedsItProps) => {
+  const tableColumns = table?.columns?.length
+    ? table.columns
+    : [
+        "Customer Segment",
+        "Who They Are",
+        "Why They Need It",
+        "Key Risk Exposure",
+      ];
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#0F2240]">
-              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
-                Customer Segment
-              </th>
-              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
-                Who They Are
-              </th>
-              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
-                Why They Need It
-              </th>
-              <th className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide">
-                Key Risk Exposure
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                <td className="px-5 py-4 font-semibold text-[#0F2240] align-top">
-                  {row.segment}
-                </td>
-                <td className="px-5 py-4 text-slate-600 align-top">
-                  {row.who}
-                </td>
-                <td className="px-5 py-4 text-slate-600 align-top">
-                  {row.why}
-                </td>
-                <td className="px-5 py-4 text-slate-600 align-top">
-                  {row.risk}
-                </td>
-              </tr>
+  const tableRows = table?.rows?.length
+    ? table.rows
+    : rows.map((row) => [row.segment, row.who, row.why, row.risk]);
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-8">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-3">
+            {heading}
+          </h2>
+
+          <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
+            {intro}
+          </p>
+        </div>
+
+        {layoutType === "cards" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {cards.map((card, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+              >
+                {card.img && (
+                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+                    <img
+                      src={card.img}
+                      alt={card.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                    {card.title}
+                  </p>
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {card.text}
+                  </p>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#0F2240]">
+                  {tableColumns.map((column, i) => (
+                    <th
+                      key={i}
+                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                  >
+                    {tableColumns.map((_, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className={`px-5 py-4 text-slate-600 align-top ${
+                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
+                        }`}
+                      >
+                        {row[colIndex] || ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
+
+// CUSTOM SECTION — for any unique content blocks that don't fit other templates. Simple toggle + layout switch between cards vs table. Cards are same style as WhatIsIt cards (white bg, border, image + title + text).
+export const CustomSection = ({
+  enabled = false,
+  layoutType = "cards",
+  sectionLabel,
+  heading,
+  intro,
+  table,
+  cards = [],
+}: CustomSectionProps) => {
+  if (!enabled) return null;
+
+  const tableColumns = table?.columns || [];
+  const tableRows = table?.rows || [];
+
+  return (
+    <section className="py-20 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-8">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-3">
+            {heading}
+          </h2>
+
+          <p className="text-slate-600 text-base leading-relaxed max-w-3xl">
+            {intro}
+          </p>
+        </div>
+
+        {layoutType === "cards" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {cards.map((card, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
+              >
+                {card.img && (
+                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
+                    <img
+                      src={card.img}
+                      alt={card.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                    {card.title}
+                  </p>
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {card.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {layoutType === "table" && (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#0F2240]">
+                  {tableColumns.map((column, i) => (
+                    <th
+                      key={i}
+                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                  >
+                    {tableColumns.map((_, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className={`px-5 py-4 text-slate-600 align-top ${
+                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
+                        }`}
+                      >
+                        {row[colIndex] || ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COVERAGE TABLE — Expandable cards

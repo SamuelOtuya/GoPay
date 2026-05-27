@@ -507,7 +507,7 @@ const CoverCard = ({
             className="w-full h-full object-cover object-center opacity-55 group-hover:scale-105 transition-all duration-700"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-white/1" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/40 to-white/2" />
         </div>
       )}
 

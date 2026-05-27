@@ -1,5 +1,3 @@
-import ImageUploadField from "../components/ImageUploadField";
-
 interface RiskRow {
   img: string;
   stage: string;
@@ -8,24 +6,65 @@ interface RiskRow {
   response: string;
 }
 
+interface GenericCard {
+  img?: string;
+  title: string;
+  text: string;
+}
+
+interface FlexibleTable {
+  columns: string[];
+  rows: string[][];
+}
+
 interface Props {
   form: any;
   updateField: (field: string, value: string) => void;
+
+  riskLayoutType: "riskmap" | "table" | "cards";
+  setRiskLayoutType: React.Dispatch<
+    React.SetStateAction<"riskmap" | "table" | "cards">
+  >;
+
   riskRows: RiskRow[];
   setRiskRows: React.Dispatch<React.SetStateAction<RiskRow[]>>;
+
+  riskTable: FlexibleTable;
+  setRiskTable: React.Dispatch<React.SetStateAction<FlexibleTable>>;
+
+  riskCards: GenericCard[];
+  setRiskCards: React.Dispatch<React.SetStateAction<GenericCard[]>>;
 }
 
 export default function RiskMapEditor({
   form,
   updateField,
+  riskLayoutType,
+  setRiskLayoutType,
   riskRows,
   setRiskRows,
+  riskTable,
+  setRiskTable,
+  riskCards,
+  setRiskCards,
 }: Props) {
   return (
     <>
       <hr />
 
       <h2 className="text-xl font-bold text-[#0F2240]">Risk Map Section</h2>
+
+      <select
+        value={riskLayoutType}
+        onChange={(e) =>
+          setRiskLayoutType(e.target.value as "riskmap" | "table" | "cards")
+        }
+        className="w-full border rounded-xl px-4 py-3"
+      >
+        <option value="riskmap">Risk Map Layout</option>
+        <option value="table">Table Layout</option>
+        <option value="cards">Cards Layout</option>
+      </select>
 
       <input
         value={form.riskSectionLabel}
@@ -64,69 +103,180 @@ export default function RiskMapEditor({
         className="w-full border rounded-xl px-4 py-3"
       />
 
-      <h3 className="text-lg font-bold text-[#0F2240]">Risk Rows</h3>
+      {riskLayoutType === "riskmap" && (
+        <>
+          <h3 className="text-lg font-bold text-[#0F2240]">Risk Rows</h3>
 
-      {riskRows.map((row, index) => (
-        <div
-          key={index}
-          className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
-        >
-          <ImageUploadField
-            value={row.img}
-            onChange={(url) => {
-              const updated = [...riskRows];
-              updated[index].img = url;
-              setRiskRows(updated);
-            }}
-            folder="risk-images"
-          />
-
-          <input
-            value={row.stage}
-            onChange={(e) => {
-              const updated = [...riskRows];
-              updated[index].stage = e.target.value;
-              setRiskRows(updated);
-            }}
-            placeholder="Risk stage"
-            className="w-full border rounded-xl px-4 py-3"
-          />
-
-          <textarea
-            value={row.scenario}
-            onChange={(e) => {
-              const updated = [...riskRows];
-              updated[index].scenario = e.target.value;
-              setRiskRows(updated);
-            }}
-            placeholder="Scenario"
-            rows={3}
-            className="w-full border rounded-xl px-4 py-3"
-          />
-
-          <h4 className="font-semibold text-[#0F2240]">Impact Items</h4>
-
-          {row.impact.map((item, impactIndex) => (
-            <div key={impactIndex} className="flex gap-3">
+          {riskRows.map((row, index) => (
+            <div
+              key={index}
+              className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
+            >
               <input
-                value={item}
+                value={row.img}
                 onChange={(e) => {
                   const updated = [...riskRows];
-                  updated[index].impact[impactIndex] = e.target.value;
+                  updated[index].img = e.target.value;
                   setRiskRows(updated);
                 }}
-                placeholder="Impact item"
+                placeholder="Image URL"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <input
+                value={row.stage}
+                onChange={(e) => {
+                  const updated = [...riskRows];
+                  updated[index].stage = e.target.value;
+                  setRiskRows(updated);
+                }}
+                placeholder="Risk stage"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <textarea
+                value={row.scenario}
+                onChange={(e) => {
+                  const updated = [...riskRows];
+                  updated[index].scenario = e.target.value;
+                  setRiskRows(updated);
+                }}
+                placeholder="Scenario"
+                rows={3}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <h4 className="font-semibold text-[#0F2240]">Impact Items</h4>
+
+              {row.impact.map((item, impactIndex) => (
+                <div key={impactIndex} className="flex gap-3">
+                  <input
+                    value={item}
+                    onChange={(e) => {
+                      const updated = [...riskRows];
+                      updated[index].impact[impactIndex] = e.target.value;
+                      setRiskRows(updated);
+                    }}
+                    placeholder="Impact item"
+                    className="flex-1 border rounded-xl px-4 py-3"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = [...riskRows];
+                      updated[index].impact = updated[index].impact.filter(
+                        (_, i) => i !== impactIndex,
+                      );
+                      setRiskRows(updated);
+                    }}
+                    className="text-red-600 text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...riskRows];
+                  updated[index].impact = [...updated[index].impact, ""];
+                  setRiskRows(updated);
+                }}
+                className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+              >
+                + Add Impact
+              </button>
+
+              <textarea
+                value={row.response}
+                onChange={(e) => {
+                  const updated = [...riskRows];
+                  updated[index].response = e.target.value;
+                  setRiskRows(updated);
+                }}
+                placeholder="How insurance responds"
+                rows={3}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setRiskRows(riskRows.filter((_, i) => i !== index))
+                }
+                className="text-red-600 text-sm font-semibold"
+              >
+                Remove Risk Row
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() =>
+              setRiskRows([
+                ...riskRows,
+                {
+                  img: "",
+                  stage: "",
+                  scenario: "",
+                  impact: [],
+                  response: "",
+                },
+              ])
+            }
+            className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
+          >
+            + Add Risk Row
+          </button>
+        </>
+      )}
+
+      {riskLayoutType === "table" && (
+        <>
+          <h3 className="text-lg font-bold text-[#0F2240]">Table Columns</h3>
+
+          {riskTable.columns.map((column, colIndex) => (
+            <div key={colIndex} className="flex gap-3">
+              <input
+                value={column}
+                onChange={(e) => {
+                  const updatedColumns = [...riskTable.columns];
+                  updatedColumns[colIndex] = e.target.value;
+
+                  const updatedRows = riskTable.rows.map((row) => {
+                    const newRow = [...row];
+                    while (newRow.length < updatedColumns.length)
+                      newRow.push("");
+                    return newRow.slice(0, updatedColumns.length);
+                  });
+
+                  setRiskTable({
+                    columns: updatedColumns,
+                    rows: updatedRows,
+                  });
+                }}
+                placeholder="Column name"
                 className="flex-1 border rounded-xl px-4 py-3"
               />
 
               <button
                 type="button"
                 onClick={() => {
-                  const updated = [...riskRows];
-                  updated[index].impact = updated[index].impact.filter(
-                    (_, i) => i !== impactIndex,
+                  const updatedColumns = riskTable.columns.filter(
+                    (_, i) => i !== colIndex,
                   );
-                  setRiskRows(updated);
+
+                  const updatedRows = riskTable.rows.map((row) =>
+                    row.filter((_, i) => i !== colIndex),
+                  );
+
+                  setRiskTable({
+                    columns: updatedColumns,
+                    rows: updatedRows,
+                  });
                 }}
                 className="text-red-600 text-sm font-semibold"
               >
@@ -138,55 +288,140 @@ export default function RiskMapEditor({
           <button
             type="button"
             onClick={() => {
-              const updated = [...riskRows];
-              updated[index].impact = [...updated[index].impact, ""];
-              setRiskRows(updated);
+              setRiskTable({
+                columns: [...riskTable.columns, ""],
+                rows: riskTable.rows.map((row) => [...row, ""]),
+              });
             }}
-            className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+            className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
           >
-            + Add Impact
+            + Add Column
           </button>
 
-          <textarea
-            value={row.response}
-            onChange={(e) => {
-              const updated = [...riskRows];
-              updated[index].response = e.target.value;
-              setRiskRows(updated);
-            }}
-            placeholder="How insurance responds"
-            rows={3}
-            className="w-full border rounded-xl px-4 py-3"
-          />
+          <h3 className="text-lg font-bold text-[#0F2240]">Table Rows</h3>
+
+          {riskTable.rows.map((row, rowIndex) => (
+            <div
+              key={rowIndex}
+              className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
+            >
+              {riskTable.columns.map((column, colIndex) => (
+                <textarea
+                  key={colIndex}
+                  value={row[colIndex] || ""}
+                  onChange={(e) => {
+                    const updatedRows = [...riskTable.rows];
+                    const updatedRow = [...updatedRows[rowIndex]];
+                    updatedRow[colIndex] = e.target.value;
+                    updatedRows[rowIndex] = updatedRow;
+
+                    setRiskTable({
+                      ...riskTable,
+                      rows: updatedRows,
+                    });
+                  }}
+                  placeholder={column || `Column ${colIndex + 1}`}
+                  rows={2}
+                  className="w-full border rounded-xl px-4 py-3"
+                />
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setRiskTable({
+                    ...riskTable,
+                    rows: riskTable.rows.filter((_, i) => i !== rowIndex),
+                  });
+                }}
+                className="text-red-600 text-sm font-semibold"
+              >
+                Remove Row
+              </button>
+            </div>
+          ))}
 
           <button
             type="button"
-            onClick={() => setRiskRows(riskRows.filter((_, i) => i !== index))}
-            className="text-red-600 text-sm font-semibold"
+            onClick={() => {
+              setRiskTable({
+                ...riskTable,
+                rows: [...riskTable.rows, riskTable.columns.map(() => "")],
+              });
+            }}
+            className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
           >
-            Remove Risk Row
+            + Add Row
           </button>
-        </div>
-      ))}
+        </>
+      )}
 
-      <button
-        type="button"
-        onClick={() =>
-          setRiskRows([
-            ...riskRows,
-            {
-              img: "",
-              stage: "",
-              scenario: "",
-              impact: [],
-              response: "",
-            },
-          ])
-        }
-        className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
-      >
-        + Add Risk Row
-      </button>
+      {riskLayoutType === "cards" && (
+        <>
+          <h3 className="text-lg font-bold text-[#0F2240]">Cards</h3>
+
+          {riskCards.map((card, index) => (
+            <div
+              key={index}
+              className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
+            >
+              <input
+                value={card.img || ""}
+                onChange={(e) => {
+                  const updated = [...riskCards];
+                  updated[index].img = e.target.value;
+                  setRiskCards(updated);
+                }}
+                placeholder="Image URL optional"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <input
+                value={card.title}
+                onChange={(e) => {
+                  const updated = [...riskCards];
+                  updated[index].title = e.target.value;
+                  setRiskCards(updated);
+                }}
+                placeholder="Card title"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <textarea
+                value={card.text}
+                onChange={(e) => {
+                  const updated = [...riskCards];
+                  updated[index].text = e.target.value;
+                  setRiskCards(updated);
+                }}
+                placeholder="Card text"
+                rows={4}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setRiskCards(riskCards.filter((_, i) => i !== index))
+                }
+                className="text-red-600 text-sm font-semibold"
+              >
+                Remove Card
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() =>
+              setRiskCards([...riskCards, { img: "", title: "", text: "" }])
+            }
+            className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
+          >
+            + Add Card
+          </button>
+        </>
+      )}
 
       <textarea
         value={form.riskClosing1}

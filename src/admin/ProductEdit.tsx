@@ -11,6 +11,7 @@ import WhoNeedsItEditor from "./product-sections/WhoNeedsItEditor";
 import ClaimsEditor from "./product-sections/ClaimsEditor";
 import FinalCTAEditor from "./product-sections/FinalCTAEditor";
 import CoverageEditor from "./product-sections/CoverageEditor";
+import CustomSectionEditor from "./product-sections/CustomSectionEditor";
 
 interface FaqItem {
   q: string;
@@ -42,13 +43,6 @@ interface RiskRow {
   response: string;
 }
 
-interface SegmentRow {
-  segment: string;
-  who: string;
-  why: string;
-  risk: string;
-}
-
 interface ClaimStep {
   num: number;
   title: string;
@@ -76,10 +70,87 @@ export default function ProductEdit() {
   const [whyCards, setWhyCards] = useState<WhyCard[]>([]);
   const [whatCards, setWhatCards] = useState<WhatCard[]>([]);
   const [riskRows, setRiskRows] = useState<RiskRow[]>([]);
-  const [segments, setSegments] = useState<SegmentRow[]>([]);
   const [coverageGroups, setCoverageGroups] = useState<CoverageGroup[]>([]);
   const [claimSteps, setClaimSteps] = useState<ClaimStep[]>([]);
   const [gopayBullets, setGopayBullets] = useState<string[]>([]);
+  const [whoLayoutType, setWhoLayoutType] = useState<"table" | "cards">(
+    "table",
+  );
+
+  const [whyLayoutType, setWhyLayoutType] = useState<"cards" | "table">(
+    "cards",
+  );
+
+  const [whyTable, setWhyTable] = useState<{
+    columns: string[];
+    rows: string[][];
+  }>({
+    columns: [],
+    rows: [],
+  });
+
+  const [whatLayoutType, setWhatLayoutType] = useState<"cards" | "table">(
+    "cards",
+  );
+
+  const [whatTable, setWhatTable] = useState<{
+    columns: string[];
+    rows: string[][];
+  }>({
+    columns: [],
+    rows: [],
+  });
+
+  const [whoTable, setWhoTable] = useState<{
+    columns: string[];
+    rows: string[][];
+  }>({
+    columns: [
+      "Customer Segment",
+      "Who They Are",
+      "Why They Need It",
+      "Key Risk Exposure",
+    ],
+    rows: [],
+  });
+
+  const [whoCards, setWhoCards] = useState<
+    { img?: string; title: string; text: string }[]
+  >([]);
+
+  const [riskLayoutType, setRiskLayoutType] = useState<
+    "riskmap" | "table" | "cards"
+  >("riskmap");
+
+  const [customEnabled, setCustomEnabled] = useState(false);
+
+  const [customLayoutType, setCustomLayoutType] = useState<"cards" | "table">(
+    "cards",
+  );
+
+  const [customTable, setCustomTable] = useState<{
+    columns: string[];
+    rows: string[][];
+  }>({
+    columns: [],
+    rows: [],
+  });
+
+  const [customCards, setCustomCards] = useState<
+    { img?: string; title: string; text: string }[]
+  >([]);
+
+  const [riskTable, setRiskTable] = useState<{
+    columns: string[];
+    rows: string[][];
+  }>({
+    columns: [],
+    rows: [],
+  });
+
+  const [riskCards, setRiskCards] = useState<
+    { img?: string; title: string; text: string }[]
+  >([]);
   const [form, setForm] = useState({
     title: "",
     slug: "",
@@ -120,6 +191,10 @@ export default function ProductEdit() {
     whoSectionLabel: "",
     whoHeading: "",
     whoIntro: "",
+
+    customSectionLabel: "",
+    customHeading: "",
+    customIntro: "",
 
     claimsSectionLabel: "",
     claimsHeading: "",
@@ -163,14 +238,83 @@ export default function ProductEdit() {
     const content = data.page_content || {};
     const hero = content.hero || {};
     const whySection = content.whySection || {};
+    setWhyLayoutType(whySection.layoutType || "cards");
+
+    setWhyTable(
+      whySection.table || {
+        columns: [],
+        rows: [],
+      },
+    );
+
     const whatSection = content.whatSection || {};
-    const riskMap = content.riskMap || {};
+    setWhatLayoutType(whatSection.layoutType || "cards");
+
+    setWhatTable(
+      whatSection.table || {
+        columns: [],
+        rows: [],
+      },
+    );
+
     const coverage = content.coverage || {};
-    const whoNeedsIt = content.whoNeedsIt || {};
+
     const claims = content.claims || {};
     const finalCta = content.finalCta || {};
     const pullQuote = whySection.pullQuote || {};
     const faq = content.faq || {};
+
+    const whoNeedsIt = content.whoNeedsIt || {};
+
+    setWhoLayoutType(whoNeedsIt.layoutType || "table");
+
+    setWhoTable(
+      whoNeedsIt.table || {
+        columns: [
+          "Customer Segment",
+          "Who They Are",
+          "Why They Need It",
+          "Key Risk Exposure",
+        ],
+        rows: whoNeedsIt.rows
+          ? whoNeedsIt.rows.map((row: any) => [
+              row.segment,
+              row.who,
+              row.why,
+              row.risk,
+            ])
+          : [],
+      },
+    );
+
+    const customSection = content.customSection || {};
+    setCustomEnabled(customSection.enabled || false);
+
+    setCustomLayoutType(customSection.layoutType || "cards");
+
+    setCustomTable(
+      customSection.table || {
+        columns: [],
+        rows: [],
+      },
+    );
+
+    setCustomCards(customSection.cards || []);
+
+    const riskMap = content.riskMap || {};
+
+    setRiskLayoutType(riskMap.layoutType || "riskmap");
+
+    setRiskTable(
+      riskMap.table || {
+        columns: [],
+        rows: [],
+      },
+    );
+
+    setRiskCards(riskMap.cards || []);
+
+    setWhoCards(whoNeedsIt.cards || []);
 
     setPageContent(content);
     setFaqItems(faq.items || []);
@@ -178,7 +322,6 @@ export default function ProductEdit() {
     setWhatCards(whatSection.cards || []);
     setRiskRows(riskMap.rows || []);
     setCoverageGroups(coverage.groups || []);
-    setSegments(whoNeedsIt.segments || []);
     setClaimSteps(claims.steps || []);
     setGopayBullets(claims.gopayBullets || []);
     setForm({
@@ -221,6 +364,10 @@ export default function ProductEdit() {
       whoSectionLabel: whoNeedsIt.sectionLabel || "",
       whoHeading: whoNeedsIt.heading || "",
       whoIntro: whoNeedsIt.intro || "",
+
+      customSectionLabel: customSection.sectionLabel || "",
+      customHeading: customSection.heading || "",
+      customIntro: customSection.intro || "",
 
       claimsSectionLabel: claims.sectionLabel || "",
       claimsHeading: claims.heading || "",
@@ -269,10 +416,15 @@ export default function ProductEdit() {
 
       whySection: {
         ...pageContent.whySection,
+        layoutType: whyLayoutType,
         sectionLabel: form.whySectionLabel,
         heading: form.whyHeading,
         subheading: form.whySubheading,
+
         cards: whyCards,
+
+        table: whyTable,
+
         pullQuote: {
           ...pageContent.whySection?.pullQuote,
           eyebrow: form.whyPullEyebrow,
@@ -284,24 +436,35 @@ export default function ProductEdit() {
 
       whatSection: {
         ...pageContent.whatSection,
+        layoutType: whatLayoutType,
         sectionLabel: form.whatSectionLabel,
         heading: form.whatHeading,
         subheading: form.whatSubheading,
         intro1: form.whatIntro1,
         intro2: form.whatIntro2,
         cards: whatCards,
+        table: whatTable,
         closing1: form.whatClosing1,
         closing2: form.whatClosing2,
       },
 
       riskMap: {
         ...pageContent.riskMap,
+
+        layoutType: riskLayoutType,
+
         sectionLabel: form.riskSectionLabel,
         heading: form.riskHeading,
         subheading: form.riskSubheading,
         intro1: form.riskIntro1,
         intro2: form.riskIntro2,
+
         rows: riskRows,
+
+        table: riskTable,
+
+        cards: riskCards,
+
         closing1: form.riskClosing1,
         closing2: form.riskClosing2,
       },
@@ -320,10 +483,26 @@ export default function ProductEdit() {
 
       whoNeedsIt: {
         ...pageContent.whoNeedsIt,
+        layoutType: whoLayoutType,
         sectionLabel: form.whoSectionLabel,
         heading: form.whoHeading,
         intro: form.whoIntro,
-        rows: segments,
+        table: whoTable,
+        cards: whoCards,
+      },
+
+      customSection: {
+        enabled: customEnabled,
+
+        layoutType: customLayoutType,
+
+        sectionLabel: form.customSectionLabel,
+        heading: form.customHeading,
+        intro: form.customIntro,
+
+        table: customTable,
+
+        cards: customCards,
       },
 
       claims: {
@@ -427,6 +606,10 @@ export default function ProductEdit() {
             updateField={updateField}
             whyCards={whyCards}
             setWhyCards={setWhyCards}
+            whyLayoutType={whyLayoutType}
+            setWhyLayoutType={setWhyLayoutType}
+            whyTable={whyTable}
+            setWhyTable={setWhyTable}
           />
 
           <WhatSectionEditor
@@ -434,20 +617,47 @@ export default function ProductEdit() {
             updateField={updateField}
             whatCards={whatCards}
             setWhatCards={setWhatCards}
+            whatLayoutType={whatLayoutType}
+            setWhatLayoutType={setWhatLayoutType}
+            whatTable={whatTable}
+            setWhatTable={setWhatTable}
           />
 
           <RiskMapEditor
             form={form}
             updateField={updateField}
+            riskLayoutType={riskLayoutType}
+            setRiskLayoutType={setRiskLayoutType}
             riskRows={riskRows}
             setRiskRows={setRiskRows}
+            riskTable={riskTable}
+            setRiskTable={setRiskTable}
+            riskCards={riskCards}
+            setRiskCards={setRiskCards}
           />
 
           <WhoNeedsItEditor
             form={form}
             updateField={updateField}
-            segments={segments}
-            setSegments={setSegments}
+            whoLayoutType={whoLayoutType}
+            setWhoLayoutType={setWhoLayoutType}
+            whoTable={whoTable}
+            setWhoTable={setWhoTable}
+            whoCards={whoCards}
+            setWhoCards={setWhoCards}
+          />
+
+          <CustomSectionEditor
+            form={form}
+            updateField={updateField}
+            customEnabled={customEnabled}
+            setCustomEnabled={setCustomEnabled}
+            customLayoutType={customLayoutType}
+            setCustomLayoutType={setCustomLayoutType}
+            customTable={customTable}
+            setCustomTable={setCustomTable}
+            customCards={customCards}
+            setCustomCards={setCustomCards}
           />
 
           <CoverageEditor
