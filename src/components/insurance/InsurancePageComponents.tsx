@@ -18,13 +18,17 @@ export interface HeroProps {
 }
 
 export interface WhyCard {
-  img: string;
+  img?: string;
   title?: string;
   text: string;
+  bullets?: string[];
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 export interface WhyProps {
   layoutType?: "cards" | "table";
+  cardDisplay?: CardDisplay;
   sectionLabel: string;
   heading: string;
   subheading: string;
@@ -41,14 +45,17 @@ export interface WhyProps {
 }
 
 export interface WhatCard {
-  img: string;
+  img?: string;
   title: string;
   text: string;
-  bullets?: { label: string; desc: string }[];
+  bullets?: string[] | { label: string; desc: string }[];
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 export interface WhatProps {
   layoutType?: "cards" | "table";
+  cardDisplay?: CardDisplay;
   sectionLabel: string;
   heading: string;
   subheading: string;
@@ -72,6 +79,7 @@ export interface RiskRow {
 
 export interface RiskMapProps {
   layoutType?: "riskmap" | "table" | "cards";
+  cardDisplay?: CardDisplay;
   sectionLabel: string;
   heading: string;
   subheading: string;
@@ -94,6 +102,7 @@ export interface RiskMapProps {
 export interface CustomSectionProps {
   enabled?: boolean;
   layoutType?: "cards" | "table";
+  cardDisplay?: CardDisplay;
   sectionLabel: string;
   heading: string;
   intro: string;
@@ -109,12 +118,19 @@ export interface CoverageGroup {
 }
 
 export interface CoverageProps {
+  layoutType?: "cards" | "table";
+
   sectionLabel: string;
   heading: string;
   subheading: string;
+
   intro1: string;
   intro2: string;
-  groups: CoverageGroup[];
+
+  groups?: CoverageGroup[];
+
+  table?: FlexibleTable;
+
   note1: string;
   note2: string;
 }
@@ -124,6 +140,10 @@ export interface ClaimStep {
   title: string;
   color: string;
   text: string;
+
+  img?: string;
+  bullets?: string[];
+
   gopayRole?: string;
 }
 
@@ -135,6 +155,7 @@ export interface ClaimsProps {
   intro2: string;
   intro3: string;
   steps: ClaimStep[];
+  cardDisplay?: "grid" | "horizontal" | "auto";
   gopayBullets: string[];
   closing: string;
 }
@@ -169,6 +190,9 @@ export interface GenericCard {
   img?: string;
   title: string;
   text: string;
+  bullets?: string[];
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 export interface FlexibleTable {
@@ -176,8 +200,11 @@ export interface FlexibleTable {
   rows: string[][];
 }
 
+export type CardDisplay = "grid" | "horizontal" | "auto";
+
 export interface WhoNeedsItProps {
   layoutType?: "table" | "cards";
+  cardDisplay?: CardDisplay;
   sectionLabel: string;
   heading: string;
   intro: string;
@@ -191,6 +218,320 @@ export interface WhoNeedsItProps {
   // new cards layout
   cards?: GenericCard[];
 }
+
+const FlexibleDataTable = ({
+  columns = [],
+  rows = [],
+}: {
+  columns: string[];
+  rows: string[][];
+}) => {
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
+      <table className="w-full min-w-[760px] text-sm">
+        <thead>
+          <tr className="bg-[#0F2240] sticky top-0 z-10">
+            {columns.map((column, i) => (
+              <th
+                key={i}
+                className="text-left px-5 py-4 text-white font-bold text-xs uppercase tracking-wide border-r border-white/10 last:border-r-0"
+              >
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr
+              key={rowIndex}
+              className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
+            >
+              {columns.map((_, colIndex) => {
+                const value = row[colIndex] || "";
+                const normalized = value.toLowerCase();
+
+                const isNotCovered =
+                  normalized.includes("not covered") ||
+                  normalized.includes("not allowed") ||
+                  normalized.includes("not applicable") ||
+                  value.includes("✘") ||
+                  value.includes("❌") ||
+                  value.includes("✕");
+
+                const isLimited =
+                  normalized.includes("limited") ||
+                  normalized.includes("optional") ||
+                  normalized.includes("restriction");
+
+                const isCovered =
+                  !isNotCovered &&
+                  (normalized.includes("covered") ||
+                    normalized.includes("compliant") ||
+                    normalized.includes("minimum") ||
+                    value.includes("✔") ||
+                    value.includes("✓"));
+
+                return (
+                  <td
+                    key={colIndex}
+                    className={`px-5 py-4 align-top border-t border-slate-200 border-r last:border-r-0 leading-relaxed ${
+                      colIndex === 0
+                        ? "font-bold text-[#0F2240] bg-slate-50"
+                        : "text-slate-600"
+                    } ${
+                      colIndex !== 0 && isNotCovered
+                        ? "bg-red-50 text-red-700"
+                        : ""
+                    } ${
+                      colIndex !== 0 && isCovered
+                        ? "bg-emerald-50 text-emerald-700"
+                        : ""
+                    } ${
+                      colIndex !== 0 && isLimited
+                        ? "bg-amber-50 text-amber-700"
+                        : ""
+                    }`}
+                  >
+                    {value}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const InfoCard = ({
+  card,
+  compact = false,
+}: {
+  card: {
+    img?: string;
+    title: string;
+    text: string;
+    bullets?: string[] | { label: string; desc: string }[];
+    secondaryHeading?: string;
+    secondaryBullets?: string[];
+  };
+  compact?: boolean;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const explicitBullets =
+    card.bullets?.map((item) =>
+      typeof item === "string"
+        ? item
+        : `${item.label}${item.desc ? ` ${item.desc}` : ""}`,
+    ) || [];
+
+  const parsedBullets =
+    explicitBullets.length > 0
+      ? explicitBullets
+      : card.text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(
+            (line) =>
+              line.startsWith("-") ||
+              line.startsWith("•") ||
+              line.startsWith("*") ||
+              line.startsWith("✓") ||
+              line.startsWith("✔"),
+          )
+          .map((line) => line.replace(/^[-•*✓✔]\s*/, ""));
+
+  const cleanText = card.text
+    .split("\n")
+    .filter((line) => {
+      const trimmed = line.trim();
+      return !(
+        trimmed.startsWith("-") ||
+        trimmed.startsWith("•") ||
+        trimmed.startsWith("*") ||
+        trimmed.startsWith("✓") ||
+        trimmed.startsWith("✔")
+      );
+    })
+    .join("\n")
+    .trim();
+
+  const hasLongText = cleanText.length > (compact ? 150 : 220);
+  const hasBullets =
+    parsedBullets.length > 0 ||
+    (card.secondaryBullets && card.secondaryBullets.length > 0);
+  const shouldClamp = hasLongText || hasBullets;
+
+  return (
+    <div
+      className={`bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-200 h-full ${
+        compact ? "min-h-[220px]" : ""
+      }`}
+    >
+      {card.img ? (
+        <div
+          className={`${
+            compact ? "h-28" : "h-44"
+          } bg-slate-200 flex-shrink-0 overflow-hidden`}
+        >
+          <img
+            src={card.img}
+            alt={card.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const p = (e.target as HTMLImageElement).parentElement!;
+              p.style.background = "#e2e8f0";
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        </div>
+      ) : (
+        <div
+          className={`bg-[#0F2240] px-5 ${
+            compact ? "py-3 min-h-[56px]" : "py-4 min-h-[72px]"
+          } flex items-center`}
+        >
+          <p
+            className={`text-white font-bold uppercase tracking-wide leading-snug ${
+              compact ? "text-xs" : "text-sm"
+            }`}
+          >
+            {card.title}
+          </p>
+        </div>
+      )}
+
+      <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1`}>
+        {card.img && (
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+            {card.title}
+          </p>
+        )}
+
+        {cleanText && (
+          <p
+            className={`text-slate-600 text-sm leading-relaxed whitespace-pre-line ${
+              !expanded && shouldClamp
+                ? compact
+                  ? "line-clamp-3"
+                  : "line-clamp-5"
+                : ""
+            }`}
+          >
+            {cleanText}
+          </p>
+        )}
+
+        {(expanded || !shouldClamp) && hasBullets && (
+          <ul className={`${compact ? "mt-3" : "mt-4"} space-y-2`}>
+            {parsedBullets.map((item, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2 text-sm text-slate-600 leading-relaxed"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B] mt-2 flex-shrink-0" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {(expanded || !shouldClamp) &&
+          card.secondaryHeading &&
+          card.secondaryBullets &&
+          card.secondaryBullets.length > 0 && (
+            <div
+              className={`${compact ? "mt-4" : "mt-5"} border-t border-slate-100 pt-4`}
+            >
+              <p className="text-xs font-bold text-[#0F2240] uppercase tracking-wider mb-3">
+                {card.secondaryHeading}
+              </p>
+
+              <ul className="space-y-2">
+                {card.secondaryBullets.map((item, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm text-slate-600 leading-relaxed"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B] mt-2 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        {shouldClamp && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-auto pt-4 inline-flex items-center gap-1 text-xs font-bold text-[#1B3A6B] uppercase tracking-wider self-end hover:text-[#0F2240]"
+          >
+            {expanded ? "Show less" : "Read more"}
+            <svg
+              className={`w-3.5 h-3.5 transition-transform ${
+                expanded ? "rotate-180" : "-rotate-90"
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CardDisplayGrid = ({
+  cards = [],
+  cardDisplay = "grid",
+  className = "",
+}: {
+  cards: {
+    img?: string;
+    title: string;
+    text: string;
+    bullets?: string[] | { label: string; desc: string }[];
+    secondaryHeading?: string;
+    secondaryBullets?: string[];
+  }[];
+  cardDisplay?: CardDisplay;
+  className?: string;
+}) => {
+  const shouldUseCompact =
+    cardDisplay === "horizontal" ||
+    (cardDisplay === "auto" &&
+      (cards.length > 4 ||
+        cards.some(
+          (card) => card.text.length > 180 || (card.bullets?.length || 0) > 3,
+        )));
+
+  return (
+    <div
+      className={`${className} ${
+        shouldUseCompact
+          ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      }`}
+    >
+      {cards.map((card, i) => (
+        <InfoCard key={i} card={card} compact={shouldUseCompact} />
+      ))}
+    </div>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HERO
@@ -271,6 +612,7 @@ export const PageHero = ({
 
 export const WhyItMatters = ({
   layoutType = "cards",
+  cardDisplay = "grid",
   sectionLabel,
   heading,
   subheading,
@@ -296,77 +638,23 @@ export const WhyItMatters = ({
 
         {/* Cards matching WhatIsIt style */}
         {layoutType === "cards" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-              >
-                <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-                  <img
-                    src={card.img}
-                    alt={card.title || `Scenario ${i + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const p = (e.target as HTMLImageElement).parentElement!;
-                      p.style.background = "#e2e8f0";
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                </div>
-
-                <div className="p-5 flex flex-col flex-1">
-                  {card.title && (
-                    <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                      {card.title}
-                    </p>
-                  )}
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {card.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardDisplayGrid
+            cards={cards.map((card) => ({
+              img: card.img,
+              title: card.title || "",
+              text: card.text,
+              bullets: card.bullets,
+              secondaryHeading: card.secondaryHeading,
+              secondaryBullets: card.secondaryBullets,
+            }))}
+            cardDisplay={cardDisplay}
+            className="mb-12"
+          />
         )}
 
         {layoutType === "table" && (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-12">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#0F2240]">
-                  {tableColumns.map((column, i) => (
-                    <th
-                      key={i}
-                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableRows.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                  >
-                    {tableColumns.map((_, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`px-5 py-4 text-slate-600 align-top ${
-                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
-                        }`}
-                      >
-                        {row[colIndex] || ""}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mb-12">
+            <FlexibleDataTable columns={tableColumns} rows={tableRows} />
           </div>
         )}
       </div>
@@ -396,6 +684,7 @@ export const WhyItMatters = ({
 // ─────────────────────────────────────────────────────────────────────────────
 export const WhatIsIt = ({
   layoutType = "cards",
+  cardDisplay = "grid",
   sectionLabel,
   heading,
   subheading,
@@ -430,88 +719,23 @@ export const WhatIsIt = ({
         </p>
 
         {layoutType === "cards" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-              >
-                <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-                  <img
-                    src={card.img}
-                    alt={card.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const p = (e.target as HTMLImageElement).parentElement!;
-                      p.style.background = "#e2e8f0";
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                </div>
-
-                <div className="p-5 flex flex-col flex-1">
-                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                    {card.title}
-                  </p>
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {card.text}
-                  </p>
-
-                  {card.bullets && (
-                    <ul className="mt-3 space-y-2">
-                      {card.bullets.map((b, j) => (
-                        <li key={j} className="text-sm text-slate-600">
-                          <span className="font-semibold text-[#0F2240]">
-                            {b.label}
-                          </span>{" "}
-                          {b.desc}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardDisplayGrid
+            cards={cards.map((card) => ({
+              img: card.img,
+              title: card.title,
+              text: card.text,
+              bullets: card.bullets,
+              secondaryHeading: card.secondaryHeading,
+              secondaryBullets: card.secondaryBullets,
+            }))}
+            cardDisplay={cardDisplay}
+            className="mb-10"
+          />
         )}
 
         {layoutType === "table" && (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-10">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#0F2240]">
-                  {tableColumns.map((column, i) => (
-                    <th
-                      key={i}
-                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableRows.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                  >
-                    {tableColumns.map((_, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`px-5 py-4 text-slate-600 align-top ${
-                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
-                        }`}
-                      >
-                        {row[colIndex] || ""}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mb-10">
+            <FlexibleDataTable columns={tableColumns} rows={tableRows} />
           </div>
         )}
       </div>
@@ -619,6 +843,7 @@ const RiskCard = ({ row, index }: { row: RiskRow; index: number }) => {
 
 export const RiskMap = ({
   layoutType = "riskmap",
+  cardDisplay = "grid",
   sectionLabel,
   heading,
   subheading,
@@ -660,77 +885,16 @@ export const RiskMap = ({
         )}
 
         {layoutType === "cards" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-              >
-                {card.img && (
-                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-                    <img
-                      src={card.img}
-                      alt={card.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const p = (e.target as HTMLImageElement).parentElement!;
-                        p.style.background = "#e2e8f0";
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                )}
-
-                <div className="p-5 flex flex-col flex-1">
-                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                    {card.title}
-                  </p>
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {card.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardDisplayGrid
+            cards={cards}
+            cardDisplay={cardDisplay}
+            className="mb-8"
+          />
         )}
 
         {layoutType === "table" && (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 mb-8">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#0F2240]">
-                  {tableColumns.map((column, i) => (
-                    <th
-                      key={i}
-                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableRows.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                  >
-                    {tableColumns.map((_, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`px-5 py-4 text-slate-600 align-top ${
-                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
-                        }`}
-                      >
-                        {row[colIndex] || ""}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mb-8">
+            <FlexibleDataTable columns={tableColumns} rows={tableRows} />
           </div>
         )}
       </div>
@@ -751,6 +915,7 @@ export const RiskMap = ({
 
 export const WhoNeedsIt = ({
   layoutType = "table",
+  cardDisplay = "grid",
   sectionLabel,
   heading,
   intro,
@@ -789,71 +954,9 @@ export const WhoNeedsIt = ({
         </div>
 
         {layoutType === "cards" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-              >
-                {card.img && (
-                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-                    <img
-                      src={card.img}
-                      alt={card.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="p-5 flex flex-col flex-1">
-                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                    {card.title}
-                  </p>
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {card.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardDisplayGrid cards={cards} cardDisplay={cardDisplay} />
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#0F2240]">
-                  {tableColumns.map((column, i) => (
-                    <th
-                      key={i}
-                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableRows.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                  >
-                    {tableColumns.map((_, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`px-5 py-4 text-slate-600 align-top ${
-                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
-                        }`}
-                      >
-                        {row[colIndex] || ""}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <FlexibleDataTable columns={tableColumns} rows={tableRows} />
         )}
       </div>
     </section>
@@ -864,6 +967,7 @@ export const WhoNeedsIt = ({
 export const CustomSection = ({
   enabled = false,
   layoutType = "cards",
+  cardDisplay = "grid",
   sectionLabel,
   heading,
   intro,
@@ -893,73 +997,11 @@ export const CustomSection = ({
         </div>
 
         {layoutType === "cards" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col"
-              >
-                {card.img && (
-                  <div className="h-44 bg-slate-200 flex-shrink-0 overflow-hidden">
-                    <img
-                      src={card.img}
-                      alt={card.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="p-5 flex flex-col flex-1">
-                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
-                    {card.title}
-                  </p>
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {card.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardDisplayGrid cards={cards} cardDisplay={cardDisplay} />
         )}
 
         {layoutType === "table" && (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#0F2240]">
-                  {tableColumns.map((column, i) => (
-                    <th
-                      key={i}
-                      className="text-left px-5 py-3.5 text-white font-semibold text-xs uppercase tracking-wide"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableRows.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50"}
-                  >
-                    {tableColumns.map((_, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`px-5 py-4 text-slate-600 align-top ${
-                          colIndex === 0 ? "font-semibold text-[#0F2240]" : ""
-                        }`}
-                      >
-                        {row[colIndex] || ""}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <FlexibleDataTable columns={tableColumns} rows={tableRows} />
         )}
       </div>
     </section>
@@ -1116,54 +1158,183 @@ const CoverageCard = ({ group }: { group: CoverageGroup }) => {
 };
 
 export const CoverageTable = ({
+  layoutType = "cards",
   sectionLabel,
   heading,
   subheading,
   intro1,
   intro2,
-  groups,
+  groups = [],
+  table,
   note1,
   note2,
-}: CoverageProps) => (
-  <section className="py-20 bg-slate-50">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-4">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
+}: CoverageProps) => {
+  const tableColumns = table?.columns || [];
+  const tableRows = table?.rows || [];
+
+  return (
+    <section className="py-20 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-4">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+            {heading}
+          </h2>
+          <p className="text-slate-500 text-base mb-3">{subheading}</p>
+        </div>
+        <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
+          {intro1}
         </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base mb-3">{subheading}</p>
-      </div>
-      <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
-        {intro1}
-      </p>
-      <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
-        {intro2}
-      </p>
+        <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
+          {intro2}
+        </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {groups.map((group, i) => (
-          <CoverageCard key={i} group={group} />
-        ))}
-      </div>
+        {layoutType === "cards" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {groups.map((group, i) => (
+              <CoverageCard key={i} group={group} />
+            ))}
+          </div>
+        )}
 
-      <div className="mt-8 grid lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
-          <p className="text-slate-700 text-sm leading-relaxed">{note1}</p>
-        </div>
-        <div className="bg-[#0F2240] rounded-2xl p-6">
-          <p className="text-white/80 text-sm leading-relaxed">{note2}</p>
+        {layoutType === "table" && (
+          <FlexibleDataTable columns={tableColumns} rows={tableRows} />
+        )}
+
+        <div className="mt-8 grid lg:grid-cols-2 gap-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <p className="text-slate-700 text-sm leading-relaxed">{note1}</p>
+          </div>
+          <div className="bg-[#0F2240] rounded-2xl p-6">
+            <p className="text-white/80 text-sm leading-relaxed">{note2}</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HOW CLAIMS WORK
 // ─────────────────────────────────────────────────────────────────────────────
+
+const ClaimStepCard = ({
+  step,
+  compact = false,
+}: {
+  step: ClaimStep;
+  compact?: boolean;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const textLimit = compact ? 140 : 220;
+  const roleLimit = compact ? 110 : 180;
+
+  const hasLongText = step.text.length > textLimit;
+  const hasBullets = (step.bullets || []).length > 0;
+  const hasLongRole = (step.gopayRole || "").length > roleLimit;
+  const shouldClamp = hasLongText || hasBullets || hasLongRole;
+
+  const visibleText =
+    expanded || !hasLongText
+      ? step.text
+      : `${step.text.slice(0, textLimit)}...`;
+
+  const visibleRole =
+    !step.gopayRole || expanded || !hasLongRole
+      ? step.gopayRole
+      : `${step.gopayRole.slice(0, roleLimit)}...`;
+
+  return (
+    <div className="flex flex-col rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow h-full">
+      {step.img && (
+        <div className={`${compact ? "h-20" : "h-24"} bg-slate-200`}>
+          <img
+            src={step.img}
+            alt={step.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = "none";
+            }}
+          />
+        </div>
+      )}
+
+      <div
+        className={`${step.color || "bg-[#0F2240]"} px-4 py-3 flex items-center gap-3`}
+      >
+        <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          {step.num}
+        </span>
+
+        <p className="text-white font-bold text-sm leading-snug">
+          {step.title}
+        </p>
+      </div>
+
+      <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1`}>
+        <p className="text-slate-600 text-sm leading-relaxed flex-1">
+          {visibleText}
+        </p>
+
+        {(expanded || !shouldClamp) && hasBullets && (
+          <ul className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+            {(step.bullets || []).map((item, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2 text-sm text-slate-600 leading-relaxed"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B] mt-2 flex-shrink-0" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {step.gopayRole && (
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wide mb-1">
+              GoPay Role:
+            </p>
+
+            <p className="text-slate-600 text-sm leading-relaxed">
+              {visibleRole}
+            </p>
+          </div>
+        )}
+
+        {shouldClamp && (
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#1B3A6B] uppercase tracking-wider self-end hover:text-[#0F2240]"
+          >
+            {expanded ? "Show less" : "Read more"}
+
+            <svg
+              className={`w-3.5 h-3.5 transition-transform ${
+                expanded ? "rotate-180" : "-rotate-90"
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const HowClaims = ({
   sectionLabel,
@@ -1172,92 +1343,97 @@ export const HowClaims = ({
   intro1,
   intro2,
   intro3,
-  steps,
-  gopayBullets,
+  steps = [],
+  cardDisplay = "grid",
+  gopayBullets = [],
   closing,
-}: ClaimsProps) => (
-  <section className="py-20 bg-white">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="mb-4">
-        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
-          {sectionLabel}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
-          {heading}
-        </h2>
-        <p className="text-slate-500 text-base mb-3">{subheading}</p>
-      </div>
-      <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
-        {intro1}
-      </p>
-      <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
-        {intro2}
-      </p>
-      <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
-        {intro3}
-      </p>
-      <h3 className="text-lg font-bold text-[#0F2240] mb-6">
-        THE CLAIMS JOURNEY
-      </h3>
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${steps.length} gap-4 mb-10`}
-      >
-        {steps.map((step) => (
-          <div
-            key={step.num}
-            className="flex flex-col rounded-2xl overflow-hidden"
-          >
-            <div className={`${step.color} px-4 py-3 flex items-center gap-3`}>
-              <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                {step.num}
-              </span>
-              <p className="text-white font-bold text-sm leading-snug">
-                {step.title}
-              </p>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 border-t-0 rounded-b-2xl p-4 flex-1 flex flex-col">
-              <p className="text-slate-600 text-sm leading-relaxed flex-1">
-                {step.text}
-              </p>
-              {step.gopayRole && (
-                <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wide mb-1">
-                    GoPay Role:
-                  </p>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {step.gopayRole}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-          <p className="text-slate-700 text-base font-medium mb-3">
-            At GoPay, we act as your point of support throughout the claims
-            journey:
+}: ClaimsProps) => {
+  const useCompact =
+    cardDisplay === "horizontal" ||
+    (cardDisplay === "auto" &&
+      (steps.length > 4 ||
+        steps.some(
+          (step) =>
+            step.text.length > 180 ||
+            (step.bullets || []).length > 3 ||
+            (step.gopayRole || "").length > 140,
+        )));
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="mb-4">
+          <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+            {sectionLabel}
           </p>
-          <ul className="space-y-1.5">
-            {gopayBullets.map((item, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 text-sm text-slate-600"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B] flex-shrink-0" />
-                {item}
-              </li>
-            ))}
-          </ul>
+
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-2">
+            {heading}
+          </h2>
+
+          <p className="text-slate-500 text-base mb-3">{subheading}</p>
         </div>
-        <div className="bg-[#0F2240] rounded-2xl p-6 flex items-center">
-          <p className="text-white/80 text-base leading-relaxed">{closing}</p>
+
+        <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
+          {intro1}
+        </p>
+
+        <p className="text-slate-600 text-base leading-relaxed mb-2 max-w-3xl">
+          {intro2}
+        </p>
+
+        <p className="text-slate-600 text-base leading-relaxed mb-10 max-w-3xl">
+          {intro3}
+        </p>
+
+        <h3 className="text-lg font-bold text-[#0F2240] mb-6">
+          THE CLAIMS JOURNEY
+        </h3>
+
+        <div
+          className={`mb-10 ${
+            useCompact
+              ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+              : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          }`}
+        >
+          {steps.map((step, index) => (
+            <ClaimStepCard
+              key={`${step.num}-${index}`}
+              step={step}
+              compact={useCompact}
+            />
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+            <p className="text-slate-700 text-base font-medium mb-3">
+              At GoPay, we act as your point of support throughout the claims
+              journey:
+            </p>
+
+            <ul className="space-y-1.5">
+              {gopayBullets.map((item, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-slate-600"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B] flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-[#0F2240] rounded-2xl p-6 flex items-center">
+            <p className="text-white/80 text-base leading-relaxed">{closing}</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // RISK ASSESSMENT FORM
@@ -1720,6 +1896,21 @@ export const FAQ = ({ sectionLabel, heading, subheading, items }: FAQProps) => {
   const [open, setOpen] = useState<number | null>(null);
   return (
     <section className="py-20 px-6 sm:px-10 lg:px-16 bg-white">
+      <div className="text-center mb-12">
+        <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">
+          FAQ
+        </p>
+
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#0F2240] mb-4">
+          Commonly Asked Questions
+        </h2>
+
+        <p className="text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          Find answers to the most common questions about this insurance
+          product, including coverage, claims procedures, premiums, exclusions,
+          and policy requirements.
+        </p>
+      </div>
       <div className="max-w-4xl mx-auto">
         <div className="mb-10">
           <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-widest mb-2">

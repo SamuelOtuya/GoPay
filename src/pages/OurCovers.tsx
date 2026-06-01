@@ -56,16 +56,16 @@ const defaultCovers: Cover[] = [
     path: "/covers/car-insurance",
     popular: true,
   },
-  {
-    id: "individual-life-pension",
-    name: "Individual Life & Pension Insurance",
-    category: "Personal Insurance",
-    badge: "Personal",
-    icon: "❤️",
-    description:
-      "Life protection and pension planning options designed to protect your family and build retirement security.",
-    path: "/covers/individual-life-insurance",
-  },
+  // {
+  //   id: "individual-life-pension",
+  //   name: "Individual Life & Pension Insurance",
+  //   category: "Personal Insurance",
+  //   badge: "Personal",
+  //   icon: "❤️",
+  //   description:
+  //     "Life protection and pension planning options designed to protect your family and build retirement security.",
+  //   path: "/covers/individual-life-insurance",
+  // },
   {
     id: "motorcycle-insurance",
     name: "Motorcycle Insurance",
@@ -96,16 +96,7 @@ const defaultCovers: Cover[] = [
       "Accident protection tailored for students while at school, during activities, or in transit.",
     path: "/covers/students-personal-insurance",
   },
-  {
-    id: "funeral-expenses-insurance",
-    name: "Funeral Expenses Insurance",
-    category: "Personal Insurance",
-    badge: "Personal",
-    icon: "🕊️",
-    description:
-      "Provides quick support to help meet funeral and last-expense costs for covered members.",
-    path: "/covers/funeral-insurance",
-  },
+
   {
     id: "individual-health-insurance",
     name: "Health Insurance - Individual",
@@ -136,6 +127,49 @@ const defaultCovers: Cover[] = [
     description:
       "Protects phones, laptops, tablets, and other gadgets against accidental damage, theft, and related risks.",
     path: "/covers/device-insurance",
+  },
+  {
+    id: "seniors-medical-insurance",
+    name: "Seniors Medical Insurance",
+    category: "Personal Insurance",
+    badge: "Personal",
+    icon: "👴",
+    description:
+      "Specialized medical insurance designed for senior citizens with access to inpatient, outpatient, chronic illness, and age-related healthcare benefits.",
+    path: "/covers/seniors-medical-insurance",
+  },
+
+  {
+    id: "juniors-medical-insurance",
+    name: "Juniors Medical Insurance",
+    category: "Personal Insurance",
+    badge: "Personal",
+    icon: "🧒",
+    description:
+      "Medical insurance tailored for children and young dependents, covering healthcare needs including inpatient and outpatient treatment.",
+    path: "/covers/juniors-medical-insurance",
+  },
+
+  {
+    id: "micro-medical-insurance",
+    name: "Micro Medical Insurance",
+    category: "Personal Insurance",
+    badge: "Personal",
+    icon: "🏥",
+    description:
+      "Affordable and flexible medical cover designed to provide essential healthcare protection at a lower cost.",
+    path: "/covers/micro-medical-insurance",
+  },
+
+  {
+    id: "international-medical-insurance",
+    name: "International Medical Insurance",
+    category: "Personal Insurance",
+    badge: "Personal",
+    icon: "🌍",
+    description:
+      "Worldwide medical insurance offering international healthcare access, emergency treatment, and cross-border medical support.",
+    path: "/covers/international-medical-insurance",
   },
   {
     id: "sme-business-cover",
@@ -351,6 +385,15 @@ const defaultCovers: Cover[] = [
       "Provides income support for employees who cannot work due to illness, injury, or disability.",
     path: "/covers/group-income-protection",
   },
+  {
+    id: "sme-medical-insurance",
+    name: "SME medical insurance",
+    category: "Employee Benefits",
+    badge: "Employees",
+    icon: "💉",
+    description: ".",
+    path: "/covers/sme-medical-insurance",
+  },
 
   {
     id: "whole-life",
@@ -375,13 +418,13 @@ const defaultCovers: Cover[] = [
   },
   {
     id: "last-expense",
-    name: "Last Expense",
+    name: "Last Expense/Funeral Cover",
     category: "Life & Investments",
     badge: "Life",
     icon: "🕊️",
     description:
       "Provides quick financial support to help cover funeral and final expense costs.",
-    path: "/covers/last-expense-insurance",
+    path: "/covers/funeral-insurance",
   },
   {
     id: "education-savings",

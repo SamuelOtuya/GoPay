@@ -79,11 +79,13 @@ export default function InsuranceProductPage() {
 
       {content.claims && <HowClaims {...content.claims} />}
 
+      {content.customSection2 && <CustomSection {...content.customSection2} />}
+
+      {content.faq && <FAQ {...content.faq} />}
+
       <RiskAssessmentForm
         productLabel={product.title.replace(" Insurance", "")}
       />
-
-      {content.faq && <FAQ {...content.faq} />}
 
       {content.finalCta && <FinalCTA {...content.finalCta} />}
     </div>

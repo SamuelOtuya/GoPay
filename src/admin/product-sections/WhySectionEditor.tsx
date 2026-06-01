@@ -7,7 +7,12 @@ interface FlexibleTable {
 
 interface WhyCard {
   img: string;
+  title: string;
   text: string;
+  bullets?: string[];
+
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 interface Props {
@@ -20,6 +25,11 @@ interface Props {
   whyLayoutType: "cards" | "table";
   setWhyLayoutType: React.Dispatch<React.SetStateAction<"cards" | "table">>;
 
+  whyCardDisplay: "grid" | "horizontal" | "auto";
+  setWhyCardDisplay: React.Dispatch<
+    React.SetStateAction<"grid" | "horizontal" | "auto">
+  >;
+
   whyTable: FlexibleTable;
   setWhyTable: React.Dispatch<React.SetStateAction<FlexibleTable>>;
 }
@@ -31,6 +41,8 @@ export default function WhySectionEditor({
   setWhyCards,
   whyLayoutType,
   setWhyLayoutType,
+  whyCardDisplay,
+  setWhyCardDisplay,
   whyTable,
   setWhyTable,
 }: Props) {
@@ -105,6 +117,20 @@ export default function WhySectionEditor({
         <>
           <h3 className="text-lg font-bold text-[#0F2240]">Why Cards</h3>
 
+          <select
+            value={whyCardDisplay}
+            onChange={(e) =>
+              setWhyCardDisplay(
+                e.target.value as "grid" | "horizontal" | "auto",
+              )
+            }
+            className="w-full border rounded-xl px-4 py-3"
+          >
+            <option value="grid">Grid Cards</option>
+            <option value="horizontal">Horizontal Cards</option>
+            <option value="auto">Auto</option>
+          </select>
+
           {whyCards.map((card, index) => (
             <div
               key={index}
@@ -120,6 +146,17 @@ export default function WhySectionEditor({
                 folder="why-images"
               />
 
+              <input
+                value={card.title}
+                onChange={(e) => {
+                  const updated = [...whyCards];
+                  updated[index].title = e.target.value;
+                  setWhyCards(updated);
+                }}
+                placeholder="Card title"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
               <textarea
                 value={card.text}
                 onChange={(e) => {
@@ -131,6 +168,134 @@ export default function WhySectionEditor({
                 rows={4}
                 className="w-full border rounded-xl px-4 py-3"
               />
+
+              <h4 className="font-semibold text-[#0F2240]">Bullets</h4>
+
+              {(card.bullets || []).map((bullet, bulletIndex) => (
+                <div key={bulletIndex} className="flex gap-3">
+                  <input
+                    value={bullet}
+                    onChange={(e) => {
+                      const updated = [...whyCards];
+                      const bullets = [...(updated[index].bullets || [])];
+
+                      bullets[bulletIndex] = e.target.value;
+                      updated[index].bullets = bullets;
+
+                      setWhyCards(updated);
+                    }}
+                    placeholder="Bullet item"
+                    className="flex-1 border rounded-xl px-4 py-3"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = [...whyCards];
+
+                      updated[index].bullets = (
+                        updated[index].bullets || []
+                      ).filter((_, i) => i !== bulletIndex);
+
+                      setWhyCards(updated);
+                    }}
+                    className="text-red-600 text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...whyCards];
+
+                  updated[index].bullets = [
+                    ...(updated[index].bullets || []),
+                    "",
+                  ];
+
+                  setWhyCards(updated);
+                }}
+                className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+              >
+                + Add Bullet
+              </button>
+
+              <div className="border-t border-slate-200 pt-4 space-y-3">
+                <h4 className="font-semibold text-[#0F2240]">
+                  Secondary Section
+                </h4>
+
+                <input
+                  value={card.secondaryHeading || ""}
+                  onChange={(e) => {
+                    const updated = [...whyCards];
+
+                    updated[index].secondaryHeading = e.target.value;
+
+                    setWhyCards(updated);
+                  }}
+                  placeholder="Its Use / Benefits / Requirements"
+                  className="w-full border rounded-xl px-4 py-3"
+                />
+
+                {(card.secondaryBullets || []).map((bullet, bulletIndex) => (
+                  <div key={bulletIndex} className="flex gap-3">
+                    <input
+                      value={bullet}
+                      onChange={(e) => {
+                        const updated = [...whyCards];
+
+                        const bullets = [
+                          ...(updated[index].secondaryBullets || []),
+                        ];
+
+                        bullets[bulletIndex] = e.target.value;
+                        updated[index].secondaryBullets = bullets;
+
+                        setWhyCards(updated);
+                      }}
+                      placeholder="Secondary bullet"
+                      className="flex-1 border rounded-xl px-4 py-3"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = [...whyCards];
+
+                        updated[index].secondaryBullets = (
+                          updated[index].secondaryBullets || []
+                        ).filter((_, i) => i !== bulletIndex);
+
+                        setWhyCards(updated);
+                      }}
+                      className="text-red-600 text-sm font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...whyCards];
+
+                    updated[index].secondaryBullets = [
+                      ...(updated[index].secondaryBullets || []),
+                      "",
+                    ];
+
+                    setWhyCards(updated);
+                  }}
+                  className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+                >
+                  + Add Secondary Bullet
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -146,7 +311,19 @@ export default function WhySectionEditor({
 
           <button
             type="button"
-            onClick={() => setWhyCards([...whyCards, { img: "", text: "" }])}
+            onClick={() =>
+              setWhyCards([
+                ...whyCards,
+                {
+                  img: "",
+                  title: "",
+                  text: "",
+                  bullets: [],
+                  secondaryHeading: "",
+                  secondaryBullets: [],
+                },
+              ])
+            }
             className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
           >
             + Add Why Card
@@ -168,8 +345,10 @@ export default function WhySectionEditor({
 
                   const updatedRows = whyTable.rows.map((row) => {
                     const newRow = [...row];
+
                     while (newRow.length < updatedColumns.length)
                       newRow.push("");
+
                     return newRow.slice(0, updatedColumns.length);
                   });
 
@@ -232,6 +411,7 @@ export default function WhySectionEditor({
                   onChange={(e) => {
                     const updatedRows = [...whyTable.rows];
                     const updatedRow = [...updatedRows[rowIndex]];
+
                     updatedRow[colIndex] = e.target.value;
                     updatedRows[rowIndex] = updatedRow;
 

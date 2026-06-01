@@ -3,14 +3,25 @@ interface ClaimStep {
   title: string;
   color: string;
   text: string;
+
+  img?: string;
+  bullets?: string[];
+
   gopayRole?: string;
 }
 
 interface Props {
   form: any;
   updateField: (field: string, value: string) => void;
+
+  claimsCardDisplay: "grid" | "horizontal" | "auto";
+  setClaimsCardDisplay: React.Dispatch<
+    React.SetStateAction<"grid" | "horizontal" | "auto">
+  >;
+
   claimSteps: ClaimStep[];
   setClaimSteps: React.Dispatch<React.SetStateAction<ClaimStep[]>>;
+
   gopayBullets: string[];
   setGopayBullets: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -18,6 +29,8 @@ interface Props {
 export default function ClaimsEditor({
   form,
   updateField,
+  claimsCardDisplay,
+  setClaimsCardDisplay,
   claimSteps,
   setClaimSteps,
   gopayBullets,
@@ -28,6 +41,18 @@ export default function ClaimsEditor({
       <hr />
 
       <h2 className="text-xl font-bold text-[#0F2240]">Claims Section</h2>
+
+      <select
+        value={claimsCardDisplay}
+        onChange={(e) =>
+          setClaimsCardDisplay(e.target.value as "grid" | "horizontal" | "auto")
+        }
+        className="w-full border rounded-xl px-4 py-3"
+      >
+        <option value="grid">Grid Cards</option>
+        <option value="horizontal">Horizontal Cards</option>
+        <option value="auto">Auto</option>
+      </select>
 
       <input
         value={form.claimsSectionLabel}
@@ -105,6 +130,17 @@ export default function ClaimsEditor({
           />
 
           <input
+            value={step.img || ""}
+            onChange={(e) => {
+              const updated = [...claimSteps];
+              updated[index].img = e.target.value;
+              setClaimSteps(updated);
+            }}
+            placeholder="Image URL optional"
+            className="w-full border rounded-xl px-4 py-3"
+          />
+
+          <input
             value={step.color}
             onChange={(e) => {
               const updated = [...claimSteps];
@@ -126,6 +162,51 @@ export default function ClaimsEditor({
             rows={3}
             className="w-full border rounded-xl px-4 py-3"
           />
+
+          <h4 className="font-semibold text-[#0F2240]">Step Bullets</h4>
+
+          {(step.bullets || []).map((bullet, bulletIndex) => (
+            <div key={bulletIndex} className="flex gap-3">
+              <input
+                value={bullet}
+                onChange={(e) => {
+                  const updated = [...claimSteps];
+                  const bullets = [...(updated[index].bullets || [])];
+                  bullets[bulletIndex] = e.target.value;
+                  updated[index].bullets = bullets;
+                  setClaimSteps(updated);
+                }}
+                placeholder="Step bullet"
+                className="flex-1 border rounded-xl px-4 py-3"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...claimSteps];
+                  updated[index].bullets = (
+                    updated[index].bullets || []
+                  ).filter((_, i) => i !== bulletIndex);
+                  setClaimSteps(updated);
+                }}
+                className="text-red-600 text-sm font-semibold"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const updated = [...claimSteps];
+              updated[index].bullets = [...(updated[index].bullets || []), ""];
+              setClaimSteps(updated);
+            }}
+            className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+          >
+            + Add Step Bullet
+          </button>
 
           <textarea
             value={step.gopayRole || ""}
@@ -159,8 +240,10 @@ export default function ClaimsEditor({
             {
               num: claimSteps.length + 1,
               title: "",
+              img: "",
               color: "bg-[#0F2240]",
               text: "",
+              bullets: [],
               gopayRole: "",
             },
           ])

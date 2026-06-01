@@ -8,6 +8,7 @@ interface GenericCard {
   secondaryHeading?: string;
   secondaryBullets?: string[];
 }
+
 interface FlexibleTable {
   columns: string[];
   rows: string[][];
@@ -17,61 +18,61 @@ interface Props {
   form: any;
   updateField: (field: string, value: string) => void;
 
-  customEnabled: boolean;
-  setCustomEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  custom2Enabled: boolean;
+  setCustom2Enabled: React.Dispatch<React.SetStateAction<boolean>>;
 
-  customLayoutType: "cards" | "table";
-  setCustomLayoutType: React.Dispatch<React.SetStateAction<"cards" | "table">>;
+  custom2LayoutType: "cards" | "table";
+  setCustom2LayoutType: React.Dispatch<React.SetStateAction<"cards" | "table">>;
 
-  customCardDisplay: "grid" | "horizontal" | "auto";
-  setCustomCardDisplay: React.Dispatch<
+  custom2CardDisplay: "grid" | "horizontal" | "auto";
+  setCustom2CardDisplay: React.Dispatch<
     React.SetStateAction<"grid" | "horizontal" | "auto">
   >;
 
-  customTable: FlexibleTable;
-  setCustomTable: React.Dispatch<React.SetStateAction<FlexibleTable>>;
+  custom2Table: FlexibleTable;
+  setCustom2Table: React.Dispatch<React.SetStateAction<FlexibleTable>>;
 
-  customCards: GenericCard[];
-  setCustomCards: React.Dispatch<React.SetStateAction<GenericCard[]>>;
+  custom2Cards: GenericCard[];
+  setCustom2Cards: React.Dispatch<React.SetStateAction<GenericCard[]>>;
 }
 
-export default function CustomSectionEditor({
+export default function Custom2SectionEditor({
   form,
   updateField,
-  customEnabled,
-  setCustomEnabled,
-  customLayoutType,
-  setCustomLayoutType,
-  customCardDisplay,
-  setCustomCardDisplay,
-  customTable,
-  setCustomTable,
-  customCards,
-  setCustomCards,
+  custom2Enabled,
+  setCustom2Enabled,
+  custom2LayoutType,
+  setCustom2LayoutType,
+  custom2CardDisplay,
+  setCustom2CardDisplay,
+  custom2Table,
+  setCustom2Table,
+  custom2Cards,
+  setCustom2Cards,
 }: Props) {
   return (
     <>
       <hr />
 
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-[#0F2240]">Custom Section</h2>
+        <h2 className="text-xl font-bold text-[#0F2240]">Custom Section 2</h2>
 
         <label className="flex items-center gap-2 text-sm font-semibold">
           <input
             type="checkbox"
-            checked={customEnabled}
-            onChange={(e) => setCustomEnabled(e.target.checked)}
+            checked={custom2Enabled}
+            onChange={(e) => setCustom2Enabled(e.target.checked)}
           />
           Enable Section
         </label>
       </div>
 
-      {customEnabled && (
+      {custom2Enabled && (
         <>
           <select
-            value={customLayoutType}
+            value={custom2LayoutType}
             onChange={(e) =>
-              setCustomLayoutType(e.target.value as "cards" | "table")
+              setCustom2LayoutType(e.target.value as "cards" | "table")
             }
             className="w-full border rounded-xl px-4 py-3"
           >
@@ -80,35 +81,35 @@ export default function CustomSectionEditor({
           </select>
 
           <input
-            value={form.customSectionLabel}
-            onChange={(e) => updateField("customSectionLabel", e.target.value)}
+            value={form.custom2SectionLabel}
+            onChange={(e) => updateField("custom2SectionLabel", e.target.value)}
             placeholder="Section label"
             className="w-full border rounded-xl px-4 py-3"
           />
 
           <input
-            value={form.customHeading}
-            onChange={(e) => updateField("customHeading", e.target.value)}
+            value={form.custom2Heading}
+            onChange={(e) => updateField("custom2Heading", e.target.value)}
             placeholder="Heading"
             className="w-full border rounded-xl px-4 py-3"
           />
 
           <textarea
-            value={form.customIntro}
-            onChange={(e) => updateField("customIntro", e.target.value)}
+            value={form.custom2Intro}
+            onChange={(e) => updateField("custom2Intro", e.target.value)}
             placeholder="Intro"
             rows={3}
             className="w-full border rounded-xl px-4 py-3"
           />
 
-          {customLayoutType === "cards" && (
+          {custom2LayoutType === "cards" && (
             <>
               <h3 className="text-lg font-bold text-[#0F2240]">Cards</h3>
 
               <select
-                value={customCardDisplay}
+                value={custom2CardDisplay}
                 onChange={(e) =>
-                  setCustomCardDisplay(
+                  setCustom2CardDisplay(
                     e.target.value as "grid" | "horizontal" | "auto",
                   )
                 }
@@ -119,7 +120,7 @@ export default function CustomSectionEditor({
                 <option value="auto">Auto</option>
               </select>
 
-              {customCards.map((card, index) => (
+              {custom2Cards.map((card, index) => (
                 <div
                   key={index}
                   className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
@@ -127,9 +128,9 @@ export default function CustomSectionEditor({
                   <input
                     value={card.img || ""}
                     onChange={(e) => {
-                      const updated = [...customCards];
+                      const updated = [...custom2Cards];
                       updated[index].img = e.target.value;
-                      setCustomCards(updated);
+                      setCustom2Cards(updated);
                     }}
                     placeholder="Image URL optional"
                     className="w-full border rounded-xl px-4 py-3"
@@ -138,9 +139,9 @@ export default function CustomSectionEditor({
                   <input
                     value={card.title}
                     onChange={(e) => {
-                      const updated = [...customCards];
+                      const updated = [...custom2Cards];
                       updated[index].title = e.target.value;
-                      setCustomCards(updated);
+                      setCustom2Cards(updated);
                     }}
                     placeholder="Card title"
                     className="w-full border rounded-xl px-4 py-3"
@@ -149,9 +150,9 @@ export default function CustomSectionEditor({
                   <textarea
                     value={card.text}
                     onChange={(e) => {
-                      const updated = [...customCards];
+                      const updated = [...custom2Cards];
                       updated[index].text = e.target.value;
-                      setCustomCards(updated);
+                      setCustom2Cards(updated);
                     }}
                     placeholder="Card text"
                     rows={4}
@@ -165,11 +166,11 @@ export default function CustomSectionEditor({
                       <input
                         value={bullet}
                         onChange={(e) => {
-                          const updated = [...customCards];
+                          const updated = [...custom2Cards];
                           const bullets = [...(updated[index].bullets || [])];
                           bullets[bulletIndex] = e.target.value;
                           updated[index].bullets = bullets;
-                          setCustomCards(updated);
+                          setCustom2Cards(updated);
                         }}
                         placeholder="Bullet item"
                         className="flex-1 border rounded-xl px-4 py-3"
@@ -178,11 +179,11 @@ export default function CustomSectionEditor({
                       <button
                         type="button"
                         onClick={() => {
-                          const updated = [...customCards];
+                          const updated = [...custom2Cards];
                           updated[index].bullets = (
                             updated[index].bullets || []
                           ).filter((_, i) => i !== bulletIndex);
-                          setCustomCards(updated);
+                          setCustom2Cards(updated);
                         }}
                         className="text-red-600 text-sm font-semibold"
                       >
@@ -194,90 +195,98 @@ export default function CustomSectionEditor({
                   <button
                     type="button"
                     onClick={() => {
-                      const updated = [...customCards];
+                      const updated = [...custom2Cards];
                       updated[index].bullets = [
                         ...(updated[index].bullets || []),
                         "",
                       ];
-                      setCustomCards(updated);
+                      setCustom2Cards(updated);
                     }}
                     className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
                   >
                     + Add Bullet
                   </button>
-                  <h4 className="font-semibold text-[#0F2240]">
-                    Secondary Section
-                  </h4>
 
-                  <input
-                    value={card.secondaryHeading || ""}
-                    onChange={(e) => {
-                      const updated = [...customCards];
-                      updated[index].secondaryHeading = e.target.value;
-                      setCustomCards(updated);
-                    }}
-                    placeholder="Its Use / Benefits / Requirements"
-                    className="w-full border rounded-xl px-4 py-3"
-                  />
-                  {(card.secondaryBullets || []).map((bullet, bulletIndex) => (
-                    <div key={bulletIndex} className="flex gap-3">
-                      <input
-                        value={bullet}
-                        onChange={(e) => {
-                          const updated = [...customCards];
+                  <div className="border-t border-slate-200 pt-4 space-y-3">
+                    <h4 className="font-semibold text-[#0F2240]">
+                      Secondary Section
+                    </h4>
 
-                          const bullets = [
-                            ...(updated[index].secondaryBullets || []),
-                          ];
+                    <input
+                      value={card.secondaryHeading || ""}
+                      onChange={(e) => {
+                        const updated = [...custom2Cards];
+                        updated[index].secondaryHeading = e.target.value;
+                        setCustom2Cards(updated);
+                      }}
+                      placeholder="Its Use / Benefits / Requirements"
+                      className="w-full border rounded-xl px-4 py-3"
+                    />
 
-                          bullets[bulletIndex] = e.target.value;
+                    {(card.secondaryBullets || []).map(
+                      (bullet, bulletIndex) => (
+                        <div key={bulletIndex} className="flex gap-3">
+                          <input
+                            value={bullet}
+                            onChange={(e) => {
+                              const updated = [...custom2Cards];
 
-                          updated[index].secondaryBullets = bullets;
+                              const bullets = [
+                                ...(updated[index].secondaryBullets || []),
+                              ];
 
-                          setCustomCards(updated);
-                        }}
-                        placeholder="Secondary bullet"
-                        className="flex-1 border rounded-xl px-4 py-3"
-                      />
+                              bullets[bulletIndex] = e.target.value;
+                              updated[index].secondaryBullets = bullets;
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = [...customCards];
+                              setCustom2Cards(updated);
+                            }}
+                            placeholder="Secondary bullet"
+                            className="flex-1 border rounded-xl px-4 py-3"
+                          />
 
-                          updated[index].secondaryBullets = (
-                            updated[index].secondaryBullets || []
-                          ).filter((_, i) => i !== bulletIndex);
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...custom2Cards];
 
-                          setCustomCards(updated);
-                        }}
-                        className="text-red-600 text-sm font-semibold"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updated = [...customCards];
+                              updated[index].secondaryBullets = (
+                                updated[index].secondaryBullets || []
+                              ).filter((_, i) => i !== bulletIndex);
 
-                      updated[index].secondaryBullets = [
-                        ...(updated[index].secondaryBullets || []),
-                        "",
-                      ];
+                              setCustom2Cards(updated);
+                            }}
+                            className="text-red-600 text-sm font-semibold"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ),
+                    )}
 
-                      setCustomCards(updated);
-                    }}
-                    className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
-                  >
-                    + Add Secondary Bullet
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = [...custom2Cards];
+
+                        updated[index].secondaryBullets = [
+                          ...(updated[index].secondaryBullets || []),
+                          "",
+                        ];
+
+                        setCustom2Cards(updated);
+                      }}
+                      className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+                    >
+                      + Add Secondary Bullet
+                    </button>
+                  </div>
 
                   <button
                     type="button"
                     onClick={() =>
-                      setCustomCards(customCards.filter((_, i) => i !== index))
+                      setCustom2Cards(
+                        custom2Cards.filter((_, i) => i !== index),
+                      )
                     }
                     className="text-red-600 text-sm font-semibold"
                   >
@@ -289,15 +298,13 @@ export default function CustomSectionEditor({
               <button
                 type="button"
                 onClick={() =>
-                  setCustomCards([
-                    ...customCards,
+                  setCustom2Cards([
+                    ...custom2Cards,
                     {
                       img: "",
                       title: "",
                       text: "",
-
                       bullets: [],
-
                       secondaryHeading: "",
                       secondaryBullets: [],
                     },
@@ -310,28 +317,30 @@ export default function CustomSectionEditor({
             </>
           )}
 
-          {customLayoutType === "table" && (
+          {custom2LayoutType === "table" && (
             <>
               <h3 className="text-lg font-bold text-[#0F2240]">
                 Table Columns
               </h3>
 
-              {customTable.columns.map((column, colIndex) => (
+              {custom2Table.columns.map((column, colIndex) => (
                 <div key={colIndex} className="flex gap-3">
                   <input
                     value={column}
                     onChange={(e) => {
-                      const updatedColumns = [...customTable.columns];
+                      const updatedColumns = [...custom2Table.columns];
                       updatedColumns[colIndex] = e.target.value;
 
-                      const updatedRows = customTable.rows.map((row) => {
+                      const updatedRows = custom2Table.rows.map((row) => {
                         const newRow = [...row];
+
                         while (newRow.length < updatedColumns.length)
                           newRow.push("");
+
                         return newRow.slice(0, updatedColumns.length);
                       });
 
-                      setCustomTable({
+                      setCustom2Table({
                         columns: updatedColumns,
                         rows: updatedRows,
                       });
@@ -343,15 +352,15 @@ export default function CustomSectionEditor({
                   <button
                     type="button"
                     onClick={() => {
-                      const updatedColumns = customTable.columns.filter(
+                      const updatedColumns = custom2Table.columns.filter(
                         (_, i) => i !== colIndex,
                       );
 
-                      const updatedRows = customTable.rows.map((row) =>
+                      const updatedRows = custom2Table.rows.map((row) =>
                         row.filter((_, i) => i !== colIndex),
                       );
 
-                      setCustomTable({
+                      setCustom2Table({
                         columns: updatedColumns,
                         rows: updatedRows,
                       });
@@ -366,9 +375,9 @@ export default function CustomSectionEditor({
               <button
                 type="button"
                 onClick={() => {
-                  setCustomTable({
-                    columns: [...customTable.columns, ""],
-                    rows: customTable.rows.map((row) => [...row, ""]),
+                  setCustom2Table({
+                    columns: [...custom2Table.columns, ""],
+                    rows: custom2Table.rows.map((row) => [...row, ""]),
                   });
                 }}
                 className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
@@ -378,23 +387,24 @@ export default function CustomSectionEditor({
 
               <h3 className="text-lg font-bold text-[#0F2240]">Table Rows</h3>
 
-              {customTable.rows.map((row, rowIndex) => (
+              {custom2Table.rows.map((row, rowIndex) => (
                 <div
                   key={rowIndex}
                   className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50"
                 >
-                  {customTable.columns.map((column, colIndex) => (
+                  {custom2Table.columns.map((column, colIndex) => (
                     <textarea
                       key={colIndex}
                       value={row[colIndex] || ""}
                       onChange={(e) => {
-                        const updatedRows = [...customTable.rows];
+                        const updatedRows = [...custom2Table.rows];
                         const updatedRow = [...updatedRows[rowIndex]];
+
                         updatedRow[colIndex] = e.target.value;
                         updatedRows[rowIndex] = updatedRow;
 
-                        setCustomTable({
-                          ...customTable,
+                        setCustom2Table({
+                          ...custom2Table,
                           rows: updatedRows,
                         });
                       }}
@@ -407,9 +417,11 @@ export default function CustomSectionEditor({
                   <button
                     type="button"
                     onClick={() => {
-                      setCustomTable({
-                        ...customTable,
-                        rows: customTable.rows.filter((_, i) => i !== rowIndex),
+                      setCustom2Table({
+                        ...custom2Table,
+                        rows: custom2Table.rows.filter(
+                          (_, i) => i !== rowIndex,
+                        ),
                       });
                     }}
                     className="text-red-600 text-sm font-semibold"
@@ -422,11 +434,11 @@ export default function CustomSectionEditor({
               <button
                 type="button"
                 onClick={() => {
-                  setCustomTable({
-                    ...customTable,
+                  setCustom2Table({
+                    ...custom2Table,
                     rows: [
-                      ...customTable.rows,
-                      customTable.columns.map(() => ""),
+                      ...custom2Table.rows,
+                      custom2Table.columns.map(() => ""),
                     ],
                   });
                 }}

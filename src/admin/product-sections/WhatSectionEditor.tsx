@@ -10,6 +10,9 @@ interface WhatCard {
   title: string;
   text: string;
   bullets?: WhatBullet[];
+
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 interface FlexibleTable {
@@ -27,6 +30,11 @@ interface Props {
   whatLayoutType: "cards" | "table";
   setWhatLayoutType: React.Dispatch<React.SetStateAction<"cards" | "table">>;
 
+  whatCardDisplay: "grid" | "horizontal" | "auto";
+  setWhatCardDisplay: React.Dispatch<
+    React.SetStateAction<"grid" | "horizontal" | "auto">
+  >;
+
   whatTable: FlexibleTable;
   setWhatTable: React.Dispatch<React.SetStateAction<FlexibleTable>>;
 }
@@ -38,6 +46,8 @@ export default function WhatSectionEditor({
   setWhatCards,
   whatLayoutType,
   setWhatLayoutType,
+  whatCardDisplay,
+  setWhatCardDisplay,
   whatTable,
   setWhatTable,
 }: Props) {
@@ -96,6 +106,20 @@ export default function WhatSectionEditor({
       {whatLayoutType === "cards" && (
         <>
           <h3 className="text-lg font-bold text-[#0F2240]">What Cards</h3>
+
+          <select
+            value={whatCardDisplay}
+            onChange={(e) =>
+              setWhatCardDisplay(
+                e.target.value as "grid" | "horizontal" | "auto",
+              )
+            }
+            className="w-full border rounded-xl px-4 py-3"
+          >
+            <option value="grid">Grid Cards</option>
+            <option value="horizontal">Horizontal Cards</option>
+            <option value="auto">Auto</option>
+          </select>
 
           {whatCards.map((card, index) => (
             <div
@@ -199,6 +223,81 @@ export default function WhatSectionEditor({
                 + Add Bullet
               </button>
 
+              <div className="border-t border-slate-200 pt-4 space-y-3">
+                <h4 className="font-semibold text-[#0F2240]">
+                  Secondary Section
+                </h4>
+
+                <input
+                  value={card.secondaryHeading || ""}
+                  onChange={(e) => {
+                    const updated = [...whatCards];
+
+                    updated[index].secondaryHeading = e.target.value;
+
+                    setWhatCards(updated);
+                  }}
+                  placeholder="Its Use / Benefits / Requirements"
+                  className="w-full border rounded-xl px-4 py-3"
+                />
+
+                {(card.secondaryBullets || []).map((bullet, bulletIndex) => (
+                  <div key={bulletIndex} className="flex gap-3">
+                    <input
+                      value={bullet}
+                      onChange={(e) => {
+                        const updated = [...whatCards];
+
+                        const bullets = [
+                          ...(updated[index].secondaryBullets || []),
+                        ];
+
+                        bullets[bulletIndex] = e.target.value;
+
+                        updated[index].secondaryBullets = bullets;
+
+                        setWhatCards(updated);
+                      }}
+                      placeholder="Secondary bullet"
+                      className="flex-1 border rounded-xl px-4 py-3"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = [...whatCards];
+
+                        updated[index].secondaryBullets = (
+                          updated[index].secondaryBullets || []
+                        ).filter((_, i) => i !== bulletIndex);
+
+                        setWhatCards(updated);
+                      }}
+                      className="text-red-600 text-sm font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...whatCards];
+
+                    updated[index].secondaryBullets = [
+                      ...(updated[index].secondaryBullets || []),
+                      "",
+                    ];
+
+                    setWhatCards(updated);
+                  }}
+                  className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+                >
+                  + Add Secondary Bullet
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={() =>
@@ -221,6 +320,9 @@ export default function WhatSectionEditor({
                   title: "",
                   text: "",
                   bullets: [],
+
+                  secondaryHeading: "",
+                  secondaryBullets: [],
                 },
               ])
             }

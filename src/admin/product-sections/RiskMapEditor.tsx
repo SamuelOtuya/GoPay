@@ -10,6 +10,10 @@ interface GenericCard {
   img?: string;
   title: string;
   text: string;
+  bullets?: string[];
+
+  secondaryHeading?: string;
+  secondaryBullets?: string[];
 }
 
 interface FlexibleTable {
@@ -24,6 +28,11 @@ interface Props {
   riskLayoutType: "riskmap" | "table" | "cards";
   setRiskLayoutType: React.Dispatch<
     React.SetStateAction<"riskmap" | "table" | "cards">
+  >;
+
+  riskCardDisplay: "grid" | "horizontal" | "auto";
+  setRiskCardDisplay: React.Dispatch<
+    React.SetStateAction<"grid" | "horizontal" | "auto">
   >;
 
   riskRows: RiskRow[];
@@ -41,6 +50,8 @@ export default function RiskMapEditor({
   updateField,
   riskLayoutType,
   setRiskLayoutType,
+  riskCardDisplay,
+  setRiskCardDisplay,
   riskRows,
   setRiskRows,
   riskTable,
@@ -360,6 +371,20 @@ export default function RiskMapEditor({
         <>
           <h3 className="text-lg font-bold text-[#0F2240]">Cards</h3>
 
+          <select
+            value={riskCardDisplay}
+            onChange={(e) =>
+              setRiskCardDisplay(
+                e.target.value as "grid" | "horizontal" | "auto",
+              )
+            }
+            className="w-full border rounded-xl px-4 py-3"
+          >
+            <option value="grid">Grid Cards</option>
+            <option value="horizontal">Horizontal Cards</option>
+            <option value="auto">Auto</option>
+          </select>
+
           {riskCards.map((card, index) => (
             <div
               key={index}
@@ -399,6 +424,119 @@ export default function RiskMapEditor({
                 className="w-full border rounded-xl px-4 py-3"
               />
 
+              <h4 className="font-semibold text-[#0F2240]">Bullets</h4>
+
+              {(card.bullets || []).map((bullet, bulletIndex) => (
+                <div key={bulletIndex} className="flex gap-3">
+                  <input
+                    value={bullet}
+                    onChange={(e) => {
+                      const updated = [...riskCards];
+                      const bullets = [...(updated[index].bullets || [])];
+                      bullets[bulletIndex] = e.target.value;
+                      updated[index].bullets = bullets;
+                      setRiskCards(updated);
+                    }}
+                    placeholder="Bullet item"
+                    className="flex-1 border rounded-xl px-4 py-3"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = [...riskCards];
+                      updated[index].bullets = (
+                        updated[index].bullets || []
+                      ).filter((_, i) => i !== bulletIndex);
+                      setRiskCards(updated);
+                    }}
+                    className="text-red-600 text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...riskCards];
+                  updated[index].bullets = [
+                    ...(updated[index].bullets || []),
+                    "",
+                  ];
+                  setRiskCards(updated);
+                }}
+                className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+              >
+                + Add Bullet
+              </button>
+
+              <div className="border-t border-slate-200 pt-4 space-y-3">
+                <h4 className="font-semibold text-[#0F2240]">
+                  Secondary Section
+                </h4>
+
+                <input
+                  value={card.secondaryHeading || ""}
+                  onChange={(e) => {
+                    const updated = [...riskCards];
+                    updated[index].secondaryHeading = e.target.value;
+                    setRiskCards(updated);
+                  }}
+                  placeholder="Its Use / Benefits / Requirements"
+                  className="w-full border rounded-xl px-4 py-3"
+                />
+
+                {(card.secondaryBullets || []).map((bullet, bulletIndex) => (
+                  <div key={bulletIndex} className="flex gap-3">
+                    <input
+                      value={bullet}
+                      onChange={(e) => {
+                        const updated = [...riskCards];
+                        const bullets = [
+                          ...(updated[index].secondaryBullets || []),
+                        ];
+                        bullets[bulletIndex] = e.target.value;
+                        updated[index].secondaryBullets = bullets;
+                        setRiskCards(updated);
+                      }}
+                      placeholder="Secondary bullet"
+                      className="flex-1 border rounded-xl px-4 py-3"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = [...riskCards];
+                        updated[index].secondaryBullets = (
+                          updated[index].secondaryBullets || []
+                        ).filter((_, i) => i !== bulletIndex);
+                        setRiskCards(updated);
+                      }}
+                      className="text-red-600 text-sm font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...riskCards];
+                    updated[index].secondaryBullets = [
+                      ...(updated[index].secondaryBullets || []),
+                      "",
+                    ];
+                    setRiskCards(updated);
+                  }}
+                  className="w-full border-2 border-dashed border-slate-300 py-2 rounded-xl font-semibold text-slate-600"
+                >
+                  + Add Secondary Bullet
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={() =>
@@ -414,7 +552,17 @@ export default function RiskMapEditor({
           <button
             type="button"
             onClick={() =>
-              setRiskCards([...riskCards, { img: "", title: "", text: "" }])
+              setRiskCards([
+                ...riskCards,
+                {
+                  img: "",
+                  title: "",
+                  text: "",
+                  bullets: [],
+                  secondaryHeading: "",
+                  secondaryBullets: [],
+                },
+              ])
             }
             className="w-full border-2 border-dashed border-slate-300 py-3 rounded-xl font-semibold text-slate-600"
           >
