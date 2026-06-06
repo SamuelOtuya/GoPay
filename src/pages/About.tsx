@@ -91,16 +91,16 @@ export default function AboutPage() {
       {/* ── HERO BANNER ── */}
       <section className="relative w-full h-28 md:h-36 overflow-hidden">
         <img
-          src="/images/hero1.jpg"
+          src="/images/travel-risk-3.jpg"
           alt="GoPay Insurance Agency"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         {/* Professional dark overlay */}
-        <div className="absolute inset-0 bg-red-500/40" />
+        <div className="absolute inset-0 bg-black/60" />
         {/* Optional label */}
         <div className="relative z-10 h-full flex items-center px-8 py-25 max-w-6xl mx-auto">
           <h1
-            className="text-white text-2xl md:text-3xl font-bold tracking-wide"
+            className="text-black text-2xl md:text-3xl font-bold tracking-wide"
             style={{ fontFamily: "system-ui, sans-serif" }}
           >
             About Us
@@ -314,7 +314,7 @@ export default function AboutPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {values.map((v, i) => (
               <FadeIn key={i} delay={i * 80}>
-                <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 text-white text-center hover:bg-opacity-20 transition-all duration-300">
+                <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 text-zinc-950 text-center hover:bg-opacity-20 transition-all duration-300">
                   <div className="text-4xl mb-4">{v.icon}</div>
                   <h3 className="text-xl font-bold mb-2">{v.title}</h3>
                   <p
@@ -356,30 +356,11 @@ export default function AboutPage() {
                   <img src="/jimnah-migwi.jpg" alt="Jimnah Migwi" className="w-full h-full object-cover" />
                   ===================================================
                 */}
-                <div className="flex flex-col items-center gap-2 text-gray-400 p-8 text-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-16 h-16"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <p
-                    className="text-xs"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
-                  >
-                    Insert photo:
-                    <br />
-                    <strong>jimnah-migwi.jpg</strong>
-                  </p>
-                </div>
+                <img
+                  src="/images/jimnah-migwi.jpeg"
+                  alt="Jimnah Migwi"
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               {/* Bio */}
