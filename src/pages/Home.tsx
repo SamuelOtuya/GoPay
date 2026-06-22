@@ -5,8 +5,7 @@ import EntryPoints from "../components/home/EntryPoints";
 import WhyUs from "../components/home/WhyUs";
 import CTA from "../components/home/CTA";
 import Partners from "../components/home/Partners";
-import Blog from "./Blog";
-import HBlog from "../components/home/hblog";
+import HBlog from "../components/home/Hblog";
 
 function Home() {
   return (

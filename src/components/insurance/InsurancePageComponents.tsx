@@ -758,9 +758,9 @@ export const WhatIsIt = ({
 // Expanded: shows full impact list + insurance response
 // ─────────────────────────────────────────────────────────────────────────────
 
-const RiskCard = ({ row, index }: { row: RiskRow; index: number }) => {
+const RiskCard = ({ row }: { row: RiskRow }) => {
   const [expanded, setExpanded] = useState(false);
-
+  // ...rest of your code
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
       {/* Image */}
@@ -879,7 +879,7 @@ export const RiskMap = ({
         {layoutType === "riskmap" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {rows.map((row, i) => (
-              <RiskCard key={i} row={row} index={i} />
+              <RiskCard key={i} row={row} />
             ))}
           </div>
         )}
