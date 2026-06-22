@@ -1,3 +1,5 @@
+import ImageUploadField from "../components/ImageUploadField";
+
 interface ClaimStep {
   num: number;
   title: string;
@@ -129,15 +131,14 @@ export default function ClaimsEditor({
             className="w-full border rounded-xl px-4 py-3"
           />
 
-          <input
+          <ImageUploadField
             value={step.img || ""}
-            onChange={(e) => {
+            onChange={(url) => {
               const updated = [...claimSteps];
-              updated[index].img = e.target.value;
+              updated[index].img = url;
               setClaimSteps(updated);
             }}
-            placeholder="Image URL optional"
-            className="w-full border rounded-xl px-4 py-3"
+            folder="claims"
           />
 
           <input
